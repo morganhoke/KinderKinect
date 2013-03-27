@@ -82,7 +82,7 @@ namespace KinderKinect.Utils
             using (var depthFrame = e.OpenDepthImageFrame())
             using (var colorFrame = e.OpenColorImageFrame())
             {
-                if (depthFrame != null && colorFrame != null)
+                if (depthFrame != null && colorFrame != null && activeSkeletonNumber != 0)
                 {
                     var depthBits = new DepthImagePixel[depthFrame.PixelDataLength];
                     depthFrame.CopyDepthImagePixelDataTo(depthBits);
@@ -91,14 +91,14 @@ namespace KinderKinect.Utils
                     colorFrame.CopyPixelDataTo(colorBits);
                     int colorStride = colorFrame.BytesPerPixel * colorFrame.Width;
 
-                    byte[] output = new byte[depthFrame.Width * depthFrame.Height * depthFrame.BytesPerPixel];
+                    byte[] output = new byte[depthFrame.Width * depthFrame.Height * colorFrame.BytesPerPixel];
 
                     int outputIndex = 0;
 
                     var colorCoordinates = new ColorImagePoint[depthFrame.PixelDataLength];
                     kinect.CoordinateMapper.MapDepthFrameToColorFrame(depthFrame.Format, depthBits, colorFrame.Format, colorCoordinates);
 
-                    for (int depthIndex = 0;  depthIndex < depthBits.Length; depthIndex++, outputIndex += depthFrame.BytesPerPixel)
+                    for (int depthIndex = 0;  depthIndex < depthBits.Length; depthIndex++, outputIndex += colorFrame.BytesPerPixel)
                     {
                         var playerIndex = depthBits[depthIndex].PlayerIndex;
 
@@ -106,13 +106,13 @@ namespace KinderKinect.Utils
 
                         var colorPixelIndex = (colorPoint.X * colorFrame.BytesPerPixel) + (colorPoint.Y * colorStride);
 
-                        output[outputIndex] = colorBits[colorPixelIndex + 0];
+                        output[outputIndex + 2] = colorBits[colorPixelIndex];
                         output[outputIndex + 1] = colorBits[colorPixelIndex + 1];
-                        output[outputIndex + 2] = colorBits[colorPixelIndex + 2];
+                        output[outputIndex + 0] = colorBits[colorPixelIndex + 2];
                         output[outputIndex + 3] = playerIndex == activeSkeletonNumber ? (byte)255 : (byte)0;
 
                     }
-                    
+                    kinectVideoTexture = new Texture2D(myGame.GraphicsDevice,  depthFrame.Width, depthFrame.Height, false, SurfaceFormat.Color);
                     kinectVideoTexture.SetData(output);
 
                 }
@@ -134,9 +134,10 @@ namespace KinderKinect.Utils
 
         public override void Draw(GameTime gameTime)
         {
+            //This is temp draw code, to be replaced by some nice 3d code
             SpriteBatch batch = myGame.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
 
-            batch.Begin(SpriteSortMode.FrontToBack, BlendState.Additive);
+            batch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
             batch.Draw(kinectVideoTexture, new Rectangle(0, 0, myGame.GraphicsDevice.PresentationParameters.BackBufferWidth, myGame.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
             batch.End();
             

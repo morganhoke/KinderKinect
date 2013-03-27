@@ -70,9 +70,11 @@ namespace KinderKinect
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
             Content.RootDirectory = "Content";
             debugDraw = new DebugDrawer(this);
-            errorLogger = new Logger(new Uri(@"..\errorLog.txt", UriKind.Relative));
+            errorLogger = new Logger(new Uri(@"..\..\..\errorLog.txt", UriKind.Relative));
         }
 
         /// <summary>
@@ -136,7 +138,7 @@ namespace KinderKinect
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(new Color(0,0,0,255));
 
             // TODO: Add your drawing code here
 
