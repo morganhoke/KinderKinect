@@ -57,34 +57,6 @@ namespace KinderKinect.Utils
 
         void kinect_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
-            using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
-            {
-                if (colorFrame == null)
-                    return;
-
-                if (colorData == null)
-                    colorData = new byte[colorFrame.Width * colorFrame.Height * 4];
-
-                colorFrame.CopyPixelDataTo(colorData);
-
-                kinectVideoTexture = new Texture2D(GraphicsDevice, colorFrame.Width, colorFrame.Height);
-
-                bitmap = new Color[colorFrame.Width * colorFrame.Height];
-
-                int sourceOffset = 0;
-
-                for (int i = 0; i < bitmap.Length; i++)
-                {
-                    bitmap[i] = new Color(colorData[sourceOffset + 2],
-                        colorData[sourceOffset + 1], colorData[sourceOffset], 255);
-                    sourceOffset += 4;
-                }
-
-                kinectVideoTexture.SetData(bitmap);
-            }
-
-            // Finds the currently active skeleton
-
             using (SkeletonFrame frame = e.OpenSkeletonFrame())
             {
                 if (frame == null)
@@ -106,26 +78,47 @@ namespace KinderKinect.Utils
                 }
             }
 
-            using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
+            // Found this online at http://www.imaginativeuniversal.com/blog/post/2012/03/15/The-right-way-to-do-Background-Subtraction-with-the-Kinect-SDK-v1.aspx
+            using (var depthFrame = e.OpenDepthImageFrame())
+            using (var colorFrame = e.OpenColorImageFrame())
             {
-                // Get the depth data
-
-                if (depthFrame == null) return;
-
-                if (depthData == null)
-                    depthData = new DepthImagePixel[depthFrame.Width * depthFrame.Height];
-
-                depthFrame.CopyDepthImagePixelDataTo(depthData);
-
-                // Create the mask from the background image
-
-                if (activeSkeletonNumber != 0)
+                if (depthFrame != null && colorFrame != null)
                 {
-                    ColorImagePoint[] Points = new ColorImagePoint[depthFrame.Width * depthFrame.Height];
-                    kinect.CoordinateMapper.MapDepthFrameToColorFrame(DepthImageFormat.Resolution320x240Fps30, depthData, ColorImageFormat.RgbResolution640x480Fps30,Points);               
+                    var depthBits = new DepthImagePixel[depthFrame.PixelDataLength];
+                    depthFrame.CopyDepthImagePixelDataTo(depthBits);
+
+                    var colorBits = new byte[colorFrame.PixelDataLength];
+                    colorFrame.CopyPixelDataTo(colorBits);
+                    int colorStride = colorFrame.BytesPerPixel * colorFrame.Width;
+
+                    byte[] output = new byte[depthFrame.Width * depthFrame.Height * depthFrame.BytesPerPixel];
+
+                    int outputIndex = 0;
+
+                    var colorCoordinates = new ColorImagePoint[depthFrame.PixelDataLength];
+                    kinect.CoordinateMapper.MapDepthFrameToColorFrame(depthFrame.Format, depthBits, colorFrame.Format, colorCoordinates);
+
+                    for (int depthIndex = 0;  depthIndex < depthBits.Length; depthIndex++, outputIndex += depthFrame.BytesPerPixel)
+                    {
+                        var playerIndex = depthBits[depthIndex].PlayerIndex;
+
+                        var colorPoint = colorCoordinates[depthIndex];
+
+                        var colorPixelIndex = (colorPoint.X * colorFrame.BytesPerPixel) + (colorPoint.Y * colorStride);
+
+                        output[outputIndex] = colorBits[colorPixelIndex + 0];
+                        output[outputIndex + 1] = colorBits[colorPixelIndex + 1];
+                        output[outputIndex + 2] = colorBits[colorPixelIndex + 2];
+                        output[outputIndex + 3] = playerIndex == activeSkeletonNumber ? (byte)255 : (byte)0;
+
+                    }
+                    
+                    kinectVideoTexture.SetData(output);
+
                 }
 
             }
+ 
 
         }
 
