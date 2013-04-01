@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace KinderKinect.Utils
 {
-    class KinectCursor : ICursor
+    class KinectAbsoluteScreenspaceCursor : ICursor
     {
 
         public enum Handedness
@@ -32,7 +32,7 @@ namespace KinderKinect.Utils
         private Game1 myGame;
 
 
-        public KinectCursor(Game1 MyGame, Handedness hand)
+        public KinectAbsoluteScreenspaceCursor(Game1 MyGame, Handedness hand)
         {
             myGame = MyGame;
             kinect = (MyGame).Services.GetService(typeof(KinectSensor)) as KinectSensor;

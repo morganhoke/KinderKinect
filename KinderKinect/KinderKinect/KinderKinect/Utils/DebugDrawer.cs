@@ -33,8 +33,8 @@ namespace KinderKinect.Utils
         protected override void LoadContent()
         {
             debugTexture = myGame.Content.Load<Texture2D>("Textures\\DebugColor");
-            cursorR = new KinectCursor(myGame, KinectCursor.Handedness.Right);
-            cursorL = new KinectCursor(myGame, KinectCursor.Handedness.Left);
+            cursorR = new KinectAbsoluteScreenspaceCursor(myGame, KinectAbsoluteScreenspaceCursor.Handedness.Right);
+            cursorL = new KinectAbsoluteScreenspaceCursor(myGame, KinectAbsoluteScreenspaceCursor.Handedness.Left);
             player = new BackgroundSubtractedPlayer(myGame);
             myGame.Components.Add(player);
             base.LoadContent();

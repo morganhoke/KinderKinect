@@ -23,58 +23,22 @@ namespace KinderKinect
         SpriteBatch spriteBatch;
         Logger errorLogger;
 
+        KinectService kinect;
 
 
         DebugDrawer debugDraw;
 
-        #region KinectSetup
-
-        /// <summary>
-        /// This all sets up a kinect, got it from ms sample code
-        /// </summary>
-        KinectSensor myKinect;
-
-        protected bool setupKinect()
-        {
-            // Check to see if a Kinect is available
-            if (KinectSensor.KinectSensors.Count == 0)
-            {
-                errorLogger.WriteLine("No Kinects detected");
-                return false;
-            }
-
-            // Get the first Kinect on the computer
-            myKinect = KinectSensor.KinectSensors[0];
-
-            // Start the Kinect running and select all the streams
-            try
-            {
-                myKinect.SkeletonStream.Enable();
-                myKinect.ColorStream.Enable();
-                myKinect.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
-                myKinect.Start();
-            }
-            catch
-            {
-                errorLogger.WriteLine("Kinect initialise failed");
-                return false;
-            }
-
-            // connect a handler to the event that fires when new frames are available
-
-            return true;
-        }
-        #endregion
-
+ 
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 1920;
+            graphics.PreferredBackBufferHeight = 1080;
             Content.RootDirectory = "Content";
             debugDraw = new DebugDrawer(this);
             errorLogger = new Logger(new Uri(@"..\..\..\errorLog.txt", UriKind.Relative));
+            kinect = new KinectService(errorLogger);
         }
 
         /// <summary>
@@ -86,10 +50,9 @@ namespace KinderKinect
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            setupKinect();
-
+            bool useKinect = kinect.InitKinectService();
             this.Components.Add(debugDraw);
-            this.Services.AddService(typeof(KinectSensor), myKinect);
+            this.Services.AddService(typeof(KinectService), kinect);
             this.Services.AddService(typeof(Logger), errorLogger);
             base.Initialize();
         }
