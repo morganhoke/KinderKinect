@@ -53,7 +53,8 @@ namespace KinderKinect.Utils
 
                 ColorImagePoint handPoint = kinect.Kinect.CoordinateMapper.MapSkeletonPointToColorPoint(hand.Position, ColorImageFormat.RgbResolution640x480Fps30);
                 _position.X = handPoint.X * myGame.GraphicsDevice.PresentationParameters.BackBufferWidth / 640; // scales up to whatever resolution I like
-                _position.Y = handPoint.Y * myGame.GraphicsDevice.PresentationParameters.BackBufferHeight / 480; 
+                _position.Y = handPoint.Y * myGame.GraphicsDevice.PresentationParameters.BackBufferHeight / 480;
+                _newDataReady = false;
             }
         }
 

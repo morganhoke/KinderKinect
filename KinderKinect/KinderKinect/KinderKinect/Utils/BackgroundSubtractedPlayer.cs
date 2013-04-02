@@ -86,7 +86,7 @@ namespace KinderKinect.Utils
 
                         kinectVideoTexture = new Texture2D(myGame.GraphicsDevice, kinect.DepthFrame.Width, kinect.DepthFrame.Height, false, SurfaceFormat.Color);
                         kinectVideoTexture.SetData(output);
-                    
+                        _newDataReady = false;
 
                 }
 
