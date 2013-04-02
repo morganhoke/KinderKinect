@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Kinect;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace KinderKinect.Utils
 {
@@ -13,11 +14,22 @@ namespace KinderKinect.Utils
         /// <summary>
         /// This all sets up a kinect, got it from ms sample code
         /// </summary>
-        KinectSensor myKinect;
+        private KinectSensor myKinect;
+        /// <summary>
+        /// Lets me grab a kinect when I need it
+        /// </summary>
+        public KinectSensor Kinect
+        {
+            get
+            {
+                return myKinect;
+            }
+        }
 
         Logger errorLogger;
 
-        private bool _isRunning;
+        private List<IKinectListener> children;
+        private bool isRunning;
 
         #region frameAccessors
         private DepthImageFrame depthFrame;
@@ -57,8 +69,30 @@ namespace KinderKinect.Utils
         }
         #endregion
 
-        private List<IKinectListener> children;
-        private List<Task> RunningTasks;
+        private Skeleton[] skeletons;
+        /// <summary>
+        /// Get all the active skeletons
+        /// </summary>
+        public Skeleton[] Skeletons
+        {
+            get
+            {
+                return skeletons;
+            }
+        }
+        
+        private int activeSkeletonNumber;
+        /// <summary>
+        /// The identifier of the active skeleton
+        /// </summary>
+        public int ActiveSkeletonNumber
+        {
+            get 
+            {
+                return activeSkeletonNumber;
+            }
+        }
+        private Skeleton activeSkeleton;
 
         /// <summary>
         /// Are we actively listening to what our Kinect is pumping out at us?
@@ -67,14 +101,15 @@ namespace KinderKinect.Utils
         {
             get
             {
-                return _isRunning;
+                return isRunning;
             }
         }
         
         public KinectService(Logger ErrorLogger)
         {
             errorLogger = ErrorLogger;
-            _isRunning = false;
+            isRunning = false;
+            children = new List<IKinectListener>();
         }
 
         public bool InitKinectService()
@@ -113,13 +148,13 @@ namespace KinderKinect.Utils
         /// </summary>
         public void Start()
         {
-            if (_isRunning)
+            if (isRunning)
             {
                 return;
             }
 
             myKinect.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(myKinect_AllFramesReady);
-            _isRunning = true;
+            isRunning = true;
         }
 
         /// <summary>
@@ -127,30 +162,47 @@ namespace KinderKinect.Utils
         /// </summary>
         public void Stop()
         {
-            if (!_isRunning)
+            if (!isRunning)
             {
                 return;
             }
-            _isRunning = false;
-            while (RunningTasks.Count != 0)
-            {
-                //spin untill all threads clean themselves up
-            }
+            isRunning = false;
             myKinect.AllFramesReady -= new EventHandler<AllFramesReadyEventArgs>(myKinect_AllFramesReady);
             
         }
 
         void myKinect_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
-            if (_isRunning)
+            if (isRunning)
             {
                 skeletonFrame = e.OpenSkeletonFrame();
                 depthFrame = e.OpenDepthImageFrame();
                 colorFranme = e.OpenColorImageFrame();
 
-                foreach (IKinectListener child in children)
+                using (SkeletonFrame frame = e.OpenSkeletonFrame())
                 {
-                    RunningTasks.Add(Task.Factory.StartNew(child.NewKinectDataReady).ContinueWith(TaskDone));
+                    if (frame == null)
+                        return;
+
+                    skeletons = new Skeleton[frame.SkeletonArrayLength];
+                    frame.CopySkeletonDataTo(skeletons);
+                }
+
+                activeSkeletonNumber = 0;
+
+                for (int i = 0; i < skeletons.Length; i++)
+                {
+                    if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
+                    {
+                        activeSkeletonNumber = i + 1;
+                        activeSkeleton = skeletons[i];
+                        break;
+                    }
+                }
+
+                foreach (IKinectListener l in children)
+                {
+                    l.NewKinectDataReady = true;
                 }
 
             }
@@ -162,7 +214,7 @@ namespace KinderKinect.Utils
         /// <param name="listener">the listener to register</param>
         public void RegisterKinectListener(IKinectListener listener)
         {
-            if (_isRunning)
+            if (isRunning)
             {
                 Stop();
                 children.Add(listener);
@@ -176,7 +228,7 @@ namespace KinderKinect.Utils
 
         public void UnregisterKinectListener(IKinectListener listener)
         {
-            if (_isRunning)
+            if (isRunning)
             {
                 Stop();
                 children.Remove(listener);
@@ -186,11 +238,6 @@ namespace KinderKinect.Utils
             {
                 children.Remove(listener);
             }
-        }
-
-        private void TaskDone(Task t)
-        {
-            RunningTasks.Remove(t);
         }
 
 

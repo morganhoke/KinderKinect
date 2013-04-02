@@ -8,9 +8,9 @@ using Microsoft.Xna.Framework;
 
 namespace KinderKinect.Utils
 {
-    class KinectAbsoluteScreenspaceCursor : ICursor
+    class KinectAbsoluteScreenspaceCursor : ICursor, IKinectListener
     {
-
+        bool _newDataReady = false;
         public enum Handedness
         {
             Left,
@@ -25,61 +25,47 @@ namespace KinderKinect.Utils
         }
 
         private Handedness handSelect;
-        private KinectSensor kinect;
-        private int activeSkeletonNumber;
-        private Skeleton[] skeletons = null;
-        private Skeleton activeSkeleton = null;
+        private KinectService kinect;
         private Game1 myGame;
 
 
         public KinectAbsoluteScreenspaceCursor(Game1 MyGame, Handedness hand)
         {
             myGame = MyGame;
-            kinect = (MyGame).Services.GetService(typeof(KinectSensor)) as KinectSensor;
+            kinect = (MyGame).Services.GetService(typeof(KinectService)) as KinectService;
             handSelect = hand;
-            kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
-        }
-
-        void kinect_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
-        {
-            using (SkeletonFrame frame = e.OpenSkeletonFrame())
-            {
-                if (frame != null)
-                {
-                    skeletons = new Skeleton[frame.SkeletonArrayLength];
-                    frame.CopySkeletonDataTo(skeletons);
-                }
-            }
-            activeSkeletonNumber = 0;
-
-            for (int i = 0; i < skeletons.Length; i++)
-            {
-                if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
-                {
-                    activeSkeletonNumber = i + 1;
-                    activeSkeleton = skeletons[i];
-                    break;
-                }
-            }
+            kinect.RegisterKinectListener(this);
         }
 
         public void Update()
         {
-            if (activeSkeletonNumber != 0)
+            if (kinect.ActiveSkeletonNumber != 0 && _newDataReady)
             {
                 Joint hand = new Joint();
                 if (handSelect == Handedness.Left)
                 {
-                    hand = activeSkeleton.Joints[JointType.HandLeft];
+                    hand = kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.HandLeft];
                 }
                 else
                 {
-                    hand = activeSkeleton.Joints[JointType.HandRight];
+                    hand = kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.HandRight];
                 }
 
-                ColorImagePoint handPoint = kinect.CoordinateMapper.MapSkeletonPointToColorPoint(hand.Position, ColorImageFormat.RgbResolution640x480Fps30);
+                ColorImagePoint handPoint = kinect.Kinect.CoordinateMapper.MapSkeletonPointToColorPoint(hand.Position, ColorImageFormat.RgbResolution640x480Fps30);
                 _position.X = handPoint.X * myGame.GraphicsDevice.PresentationParameters.BackBufferWidth / 640; // scales up to whatever resolution I like
                 _position.Y = handPoint.Y * myGame.GraphicsDevice.PresentationParameters.BackBufferHeight / 480; 
+            }
+        }
+
+        public bool NewKinectDataReady
+        {
+            get
+            {
+                return _newDataReady;
+            }
+            set
+            {
+                _newDataReady = value;
             }
         }
     }

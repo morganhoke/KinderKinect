@@ -15,20 +15,13 @@ namespace KinderKinect.Utils
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class BackgroundSubtractedPlayer : Microsoft.Xna.Framework.DrawableGameComponent
+    public class BackgroundSubtractedPlayer : Microsoft.Xna.Framework.DrawableGameComponent, IKinectListener
     {
         Texture2D kinectVideoTexture = null;
-        KinectSensor kinect;
+        KinectService kinect;
         Game1 myGame;
-        byte[] colorData = null;
-        DepthImagePixel[] depthData = null;
-
-        Skeleton[] skeletons = null;
-        Skeleton activeSkeleton = null;
-        Color[] bitmap;
-
-
-        int activeSkeletonNumber;
+  
+        bool _newDataReady = false;
 
         public BackgroundSubtractedPlayer(Game game)
             : base(game)
@@ -49,75 +42,55 @@ namespace KinderKinect.Utils
 
         protected override void LoadContent()
         {
-            kinect = myGame.Services.GetService(typeof(KinectSensor)) as KinectSensor;
-            kinect.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(kinect_AllFramesReady);
+            kinect = myGame.Services.GetService(typeof(KinectService)) as KinectService;
             kinectVideoTexture = new Texture2D(myGame.GraphicsDevice, 640, 480);
+            kinect.RegisterKinectListener(this);
             base.LoadContent();
         }
 
-        void kinect_AllFramesReady(object sender, AllFramesReadyEventArgs e)
+        void ProcessFrame()
         {
-            using (SkeletonFrame frame = e.OpenSkeletonFrame())
-            {
-                if (frame == null)
-                    return;
-
-                skeletons = new Skeleton[frame.SkeletonArrayLength];
-                frame.CopySkeletonDataTo(skeletons);
-            }
-
-            activeSkeletonNumber = 0;
-
-            for (int i = 0; i < skeletons.Length; i++)
-            {
-                if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
-                {
-                    activeSkeletonNumber = i + 1;
-                    activeSkeleton = skeletons[i];
-                    break;
-                }
-            }
+            
 
             // Found this online at http://www.imaginativeuniversal.com/blog/post/2012/03/15/The-right-way-to-do-Background-Subtraction-with-the-Kinect-SDK-v1.aspx
-            using (var depthFrame = e.OpenDepthImageFrame())
-            using (var colorFrame = e.OpenColorImageFrame())
-            {
-                if (depthFrame != null && colorFrame != null && activeSkeletonNumber != 0)
+                if (kinect.DepthFrame != null && kinect.ColorFrame != null && kinect.ActiveSkeletonNumber != 0 && _newDataReady)
                 {
-                    var depthBits = new DepthImagePixel[depthFrame.PixelDataLength];
-                    depthFrame.CopyDepthImagePixelDataTo(depthBits);
+                    var depthBits = new DepthImagePixel[kinect.DepthFrame.PixelDataLength];
+                    kinect.DepthFrame.CopyDepthImagePixelDataTo(depthBits);
 
-                    var colorBits = new byte[colorFrame.PixelDataLength];
-                    colorFrame.CopyPixelDataTo(colorBits);
-                    int colorStride = colorFrame.BytesPerPixel * colorFrame.Width;
+                    var colorBits = new byte[kinect.ColorFrame.PixelDataLength];
+                    kinect.ColorFrame.CopyPixelDataTo(colorBits);
+                    int colorStride = kinect.ColorFrame.BytesPerPixel * kinect.ColorFrame.Width;
 
-                    byte[] output = new byte[depthFrame.Width * depthFrame.Height * colorFrame.BytesPerPixel];
+                    byte[] output = new byte[kinect.DepthFrame.Width * kinect.DepthFrame.Height * kinect.ColorFrame.BytesPerPixel];
 
                     int outputIndex = 0;
 
-                    var colorCoordinates = new ColorImagePoint[depthFrame.PixelDataLength];
-                    kinect.CoordinateMapper.MapDepthFrameToColorFrame(depthFrame.Format, depthBits, colorFrame.Format, colorCoordinates);
+                    var colorCoordinates = new ColorImagePoint[kinect.DepthFrame.PixelDataLength];
+                    kinect.Kinect.CoordinateMapper.MapDepthFrameToColorFrame(kinect.DepthFrame.Format, depthBits, kinect.ColorFrame.Format, colorCoordinates);
 
-                    for (int depthIndex = 0;  depthIndex < depthBits.Length; depthIndex++, outputIndex += colorFrame.BytesPerPixel)
+                    for (int depthIndex = 0;  depthIndex < depthBits.Length; depthIndex++, outputIndex += kinect.ColorFrame.BytesPerPixel)
                     {
                         var playerIndex = depthBits[depthIndex].PlayerIndex;
 
                         var colorPoint = colorCoordinates[depthIndex];
 
-                        var colorPixelIndex = (colorPoint.X * colorFrame.BytesPerPixel) + (colorPoint.Y * colorStride);
+                        var colorPixelIndex = (colorPoint.X * kinect.ColorFrame.BytesPerPixel) + (colorPoint.Y * colorStride);
 
                         output[outputIndex + 2] = colorBits[colorPixelIndex];
                         output[outputIndex + 1] = colorBits[colorPixelIndex + 1];
                         output[outputIndex + 0] = colorBits[colorPixelIndex + 2];
-                        output[outputIndex + 3] = playerIndex == activeSkeletonNumber ? (byte)255 : (byte)0;
+                        output[outputIndex + 3] = playerIndex == kinect.ActiveSkeletonNumber ? (byte)255 : (byte)0;
 
                     }
-                    kinectVideoTexture = new Texture2D(myGame.GraphicsDevice,  depthFrame.Width, depthFrame.Height, false, SurfaceFormat.Color);
-                    kinectVideoTexture.SetData(output);
+
+                        kinectVideoTexture = new Texture2D(myGame.GraphicsDevice, kinect.DepthFrame.Width, kinect.DepthFrame.Height, false, SurfaceFormat.Color);
+                        kinectVideoTexture.SetData(output);
+                    
 
                 }
 
-            }
+            
  
 
         }
@@ -128,7 +101,7 @@ namespace KinderKinect.Utils
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            
+            ProcessFrame();
             base.Update(gameTime);
         }
 
@@ -136,12 +109,24 @@ namespace KinderKinect.Utils
         {
             //This is temp draw code, to be replaced by some nice 3d code
             SpriteBatch batch = myGame.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
-
+       
             batch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
             batch.Draw(kinectVideoTexture, new Rectangle(0, 0, myGame.GraphicsDevice.PresentationParameters.BackBufferWidth, myGame.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
             batch.End();
-            
+           
             base.Draw(gameTime);
+        }
+
+        public bool NewKinectDataReady
+        {
+            get
+            {
+                return _newDataReady;
+            }
+            set
+            {
+                _newDataReady = value;
+            }
         }
     }
 }

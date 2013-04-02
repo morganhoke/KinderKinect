@@ -11,9 +11,10 @@ namespace KinderKinect.Utils
         /// <summary>
         /// This is how I'll asynchronously get the kinect data out to listening processes
         /// </summary>
-        Action NewKinectDataReady
+        bool NewKinectDataReady
         {
             get;
+            set;
         }
     }
 }

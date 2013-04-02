@@ -66,7 +66,7 @@ namespace KinderKinect
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             this.Services.AddService(typeof(SpriteBatch), spriteBatch);
-
+            kinect.Start();
             // TODO: use this.Content to load your game content here
         }
 
