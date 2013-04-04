@@ -81,6 +81,7 @@
     <Compile Include="Utils\ICursor.cs" />
     <Compile Include="Utils\IKinectListener.cs" />
     <Compile Include="Utils\KinectAbsoluteScreenspaceCursor.cs" />
+    <Compile Include="Utils\KinectRelativeScreenspaceCursor.cs" />
     <Compile Include="Utils\KinectService.cs" />
     <Compile Include="Utils\Logger.cs" />
     <Compile Include="Utils\MouseCursor.cs" />
