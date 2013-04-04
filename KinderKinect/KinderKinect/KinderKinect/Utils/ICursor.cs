@@ -21,7 +21,15 @@ namespace KinderKinect.Utils
         /// </summary>
         void Update();
 
+        /// <summary>
+        /// Used to tell the cursor that it is hovering over a time sensative element
+        /// </summary>
+        void BeginHoverState(TimeSpan timeToCompletion);
 
+        /// <summary>
+        /// Used to tell the cursor that it has stopped hovering over a time sensative element
+        /// </summary>
+        void EndHoverState();
 
     }
 }

@@ -69,5 +69,16 @@ namespace KinderKinect.Utils
                 _newDataReady = value;
             }
         }
+
+
+        public void BeginHoverState(TimeSpan timeToCompletion)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public void EndHoverState()
+        {
+            //throw new NotImplementedException();
+        }
     }
 }

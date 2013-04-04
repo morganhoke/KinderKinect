@@ -20,7 +20,25 @@ namespace KinderKinect.Utils
         Texture2D kinectVideoTexture = null;
         KinectService kinect;
         Game1 myGame;
-  
+        Model myModel;
+        
+        /// <summary>
+        /// The player's position in the scene
+        /// </summary>
+        Vector3 position;
+        public Vector3 Position
+        {
+            get
+            {
+                return position;
+            }
+            set
+            {
+                position = value;
+            }
+        }
+
+
         bool _newDataReady = false;
 
         public BackgroundSubtractedPlayer(Game game)
@@ -45,6 +63,7 @@ namespace KinderKinect.Utils
             kinect = myGame.Services.GetService(typeof(KinectService)) as KinectService;
             kinectVideoTexture = new Texture2D(myGame.GraphicsDevice, 640, 480);
             kinect.RegisterKinectListener(this);
+            myModel = myGame.Content.Load<Model>("Models/simplePlane");
             base.LoadContent();
         }
 

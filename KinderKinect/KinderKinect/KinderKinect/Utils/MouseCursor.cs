@@ -26,5 +26,16 @@ namespace KinderKinect.Utils
            _position.X = Mouse.GetState().X;
            _position.Y = Mouse.GetState().Y;
         }
+
+
+        public void BeginHoverState(TimeSpan timeToCompletion)
+        {
+      
+        }
+
+        public void EndHoverState()
+        {
+           
+        }
     }
 }
