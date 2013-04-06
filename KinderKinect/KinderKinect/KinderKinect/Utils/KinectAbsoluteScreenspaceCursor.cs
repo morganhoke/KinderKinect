@@ -76,7 +76,7 @@ namespace KinderKinect.Utils
             //throw new NotImplementedException();
         }
 
-        public void EndHoverState()
+        public void BreakHoverState()
         {
             //throw new NotImplementedException();
         }

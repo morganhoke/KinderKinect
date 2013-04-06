@@ -29,7 +29,7 @@ namespace KinderKinect.Utils
         /// <summary>
         /// Used to tell the cursor that it has stopped hovering over a time sensative element
         /// </summary>
-        void EndHoverState();
+        void BreakHoverState();
 
     }
 }
