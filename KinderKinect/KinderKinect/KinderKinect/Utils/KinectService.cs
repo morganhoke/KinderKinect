@@ -152,7 +152,7 @@ namespace KinderKinect.Utils
             {
                 return;
             }
-
+            if(myKinect!= null)
             myKinect.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(myKinect_AllFramesReady);
             isRunning = true;
         }

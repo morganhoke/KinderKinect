@@ -73,20 +73,27 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActivityManager.cs" />
+    <Compile Include="ButterflyGarden\Butterfly.cs" />
+    <Compile Include="ButterflyGarden\ButterflyActivity.cs" />
+    <Compile Include="ButterflyGarden\ButterflyLevel.cs" />
+    <Compile Include="ButterflyGarden\ButterflyPlayer.cs" />
+    <Compile Include="IActivity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Utils\BackgroundSubtractedPlayer.cs" />
+    <Compile Include="Utils\Camera\CameraComponent.cs" />
+    <Compile Include="Utils\Cursors\ICursor.cs" />
+    <Compile Include="Utils\Cursors\KinectAbsoluteScreenspaceCursor.cs" />
+    <Compile Include="Utils\Cursors\KinectRelativeScreenspaceCursor.cs" />
+    <Compile Include="Utils\Cursors\MouseCursor.cs" />
     <Compile Include="Utils\DebugDrawer.cs" />
     <Compile Include="Utils\Gui\Button.cs" />
     <Compile Include="Utils\Gui\Hitbox.cs" />
-    <Compile Include="Utils\ICursor.cs" />
     <Compile Include="Utils\IKinectListener.cs" />
-    <Compile Include="Utils\KinectAbsoluteScreenspaceCursor.cs" />
-    <Compile Include="Utils\KinectRelativeScreenspaceCursor.cs" />
     <Compile Include="Utils\KinectService.cs" />
     <Compile Include="Utils\Logger.cs" />
-    <Compile Include="Utils\MouseCursor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
@@ -127,9 +134,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utils\Camera\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

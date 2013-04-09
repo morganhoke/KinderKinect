@@ -33,8 +33,8 @@ namespace KinderKinect
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1920;
-            graphics.PreferredBackBufferHeight = 1080;
+            graphics.PreferredBackBufferWidth = 1024;
+            graphics.PreferredBackBufferHeight = 768;
             Content.RootDirectory = "Content";
             debugDraw = new DebugDrawer(this);
             errorLogger = new Logger(new Uri(@"..\..\..\errorLog.txt", UriKind.Relative));
