@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using KinderKinect.Utils;
 using Microsoft.Kinect;
+using KinderKinect.ButterflyGarden;
 
 
 namespace KinderKinect
@@ -28,7 +29,7 @@ namespace KinderKinect
 
         DebugDrawer debugDraw;
 
- 
+        ActivityManager activitiyManager;
 
         public Game1()
         {
@@ -51,9 +52,10 @@ namespace KinderKinect
         {
             // TODO: Add your initialization logic here
             bool useKinect = kinect.InitKinectService();
-            this.Components.Add(debugDraw);
+            //this.Components.Add(debugDraw);
             this.Services.AddService(typeof(KinectService), kinect);
             this.Services.AddService(typeof(Logger), errorLogger);
+            activitiyManager = new ActivityManager(new ButterflyActivity(this));
             base.Initialize();
         }
 
@@ -66,6 +68,7 @@ namespace KinderKinect
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             this.Services.AddService(typeof(SpriteBatch), spriteBatch);
+            activitiyManager.LoadContent();
             kinect.Start();
             // TODO: use this.Content to load your game content here
         }
@@ -91,7 +94,7 @@ namespace KinderKinect
                 this.Exit();
 
             // TODO: Add your update logic here
-
+            activitiyManager.Update();
             base.Update(gameTime);
         }
 
@@ -104,7 +107,7 @@ namespace KinderKinect
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-
+            activitiyManager.Draw(gameTime);
             base.Draw(gameTime);
         }
     }

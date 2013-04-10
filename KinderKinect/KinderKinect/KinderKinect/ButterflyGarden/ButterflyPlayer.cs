@@ -65,7 +65,7 @@ namespace KinderKinect.ButterflyGarden
             }
         }
 
-        ButterflyPlayer(Game1 myGame, Vector3 Position, float Rotation)
+        public ButterflyPlayer(Game1 myGame, Vector3 Position, float Rotation)
         {
             hands = new List<ICursor>();
             hands.Add(new KinectRelativeScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Left));
@@ -77,7 +77,7 @@ namespace KinderKinect.ButterflyGarden
             world = Matrix.CreateFromAxisAngle(Vector3.Up, rotation) * Matrix.CreateTranslation(Position);
         }
 
-        void LoadContent(ContentManager content)
+        public void LoadContent(ContentManager content)
         {
             myModel = content.Load<Model>(@"Models\plane");
             testTex = content.Load<Texture2D>(@"Textures\DebugColor");
@@ -146,7 +146,7 @@ namespace KinderKinect.ButterflyGarden
 
         public void Draw(Camera cam)
         {
-            myModel.CopyAbsoluteBoneTransformsTo(transforms);
+           
 
             // Draw the model. A model can have multiple meshes, so loop.
             foreach (ModelMesh mesh in myModel.Meshes)
@@ -163,12 +163,12 @@ namespace KinderKinect.ButterflyGarden
                     effect.TextureEnabled = true;
                 }
                 // Draw the mesh, using the effects set above.
-                mesh.Draw();
+              //  mesh.Draw();
             }
-            batch.Begin();
+           /* batch.Begin();
             batch.Draw(testTex,new Rectangle((int)(hands[0].Position.X - 24), (int)(hands[0].Position.Y - 24), 2 * 24, 2 * 24), Color.White);
             batch.Draw(testTex, new Rectangle((int)(hands[1].Position.X - 24), (int)(hands[1].Position.Y - 24), 2 * 24, 2 * 24), Color.White);
-            batch.End();
+            batch.End();*/
         }
     }
 }
