@@ -70,7 +70,7 @@ namespace KinderKinect.ButterflyGarden
         {
 
             World = Matrix.CreateFromAxisAngle(Vector3.Up, rotation) * Matrix.CreateTranslation(Position);
-            Vector3 ScreenProjection = viewPort.Project(Position, Projection, View, World);
+            Vector3 ScreenProjection = viewPort.Project(Position, Projection, View, Matrix.CreateScale(0.1f) * World);
             hitbox = new Hitbox(new Rectangle((int)(ScreenProjection.X - padX), (int)(ScreenProjection.Y - padY), 2 * padX, 2 * padY));
             hitbox.Entered += new Hitbox.EnteredEventHandler(hitbox_Entered);
             hitbox.Exited += new Hitbox.ExitedEventHandler(hitbox_Exited);

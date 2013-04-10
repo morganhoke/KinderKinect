@@ -16,13 +16,15 @@ namespace KinderKinect.Utils
         Matrix playerWorld;
         Matrix view;
         Matrix projection;
+        Viewport port;
 
-        public KinectRelativeScreenspaceCursor(KinectService Kinect, Handedness hand)
+        public KinectRelativeScreenspaceCursor(KinectService Kinect, Handedness hand, Viewport Port)
             : base(Kinect, hand)
         {
             playerWorld = new Matrix();
             view = new Matrix();
             projection = new Matrix();
+            port = Port;
         }
 
         public override void Update()
@@ -39,10 +41,14 @@ namespace KinderKinect.Utils
                     hand = kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.HandRight];
                 }
 
-                Microsoft.Xna.Framework.Vector3 handVector = new Microsoft.Xna.Framework.Vector3(hand.Position.X, hand.Position.Y, hand.Position.Z);
-                handVector = myGame.GraphicsDevice.Viewport.Project(handVector, projection, view, playerWorld);
-
-                _position = new Vector2(handVector.X, handVector.Y);
+                ColorImagePoint handPoint = kinect.Kinect.CoordinateMapper.MapSkeletonPointToColorPoint(hand.Position, ColorImageFormat.RgbResolution640x480Fps30);
+                Vector3 positionTemp = new Vector3();
+                positionTemp.X = handPoint.X  / 640; // scales up to whatever resolution I like
+                positionTemp.Y = handPoint.Y / 480;
+                positionTemp.Z = playerWorld.Translation.Z;
+                positionTemp = port.Project(positionTemp, projection, view, playerWorld);
+                _position.X = positionTemp.X;
+                _position.Y = positionTemp.Y;
                 _newDataReady = false;
             } 
         }

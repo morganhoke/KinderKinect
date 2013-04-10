@@ -17,6 +17,10 @@ namespace KinderKinect.ButterflyGarden
         ButterflyPlayer player;
         Game1 myGame;
 
+        //For debugging and Science!
+        SpriteBatch sb;
+        Texture2D debugTex;
+
         public ButterflyActivity(Game1 MyGame)
         {
             myGame = MyGame;
@@ -27,7 +31,7 @@ namespace KinderKinect.ButterflyGarden
            
             myCamera.Position = new Vector3(0f, 1f, -10f);
             myCamera.LookAt(new Vector3(0, 0, 0));
-            player = new ButterflyPlayer(myGame, new Vector3(0f, 1f, 0f), 0f);
+            player = new ButterflyPlayer(myGame, new Vector3(0f, 1f, 2f), 0f, myCamera);
         }
 
         public void Initalize()
@@ -44,6 +48,9 @@ namespace KinderKinect.ButterflyGarden
             }
             player.LoadContent(content);
             currentLevel.LoadContent(content, myGame.GraphicsDevice.Viewport);
+
+            //debug code
+            sb = myGame.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
         }
 
         public void Update()
@@ -54,6 +61,10 @@ namespace KinderKinect.ButterflyGarden
         public void Draw(GameTime gameTime)
         {
             currentLevel.Draw(myGame.GraphicsDevice);
+            sb.Begin();
+            sb.Draw(Butterfly.ButterflyTextures[(int)(Butterfly.ButterflyColors.Yellow)], new Rectangle((int)(player.Hands[0].Position.X), (int)(player.Hands[0].Position.Y), 48, 48), Color.White);
+            sb.Draw(Butterfly.ButterflyTextures[(int)(Butterfly.ButterflyColors.Yellow)], new Rectangle((int)(player.Hands[1].Position.X), (int)(player.Hands[1].Position.Y), 48, 48), Color.White);
+            sb.End();
         }
 
         public void Unload()

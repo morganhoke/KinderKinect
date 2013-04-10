@@ -75,6 +75,7 @@ namespace KinderKinect.ButterflyGarden
 
         public void Update()
         {
+            player.Update();
             foreach (Butterfly b in butterflies)
             {
                 b.HitBox.update(player.Hands);

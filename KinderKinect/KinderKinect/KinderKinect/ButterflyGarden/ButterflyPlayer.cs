@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace KinderKinect.ButterflyGarden
 {
-    class ButterflyPlayer
+    class ButterflyPlayer : IKinectListener
     {
         Texture2D kinectVideoTexture = null;
         Texture2D testTex;
@@ -39,6 +39,18 @@ namespace KinderKinect.ButterflyGarden
 
 
         bool _newDataReady = false;
+        public bool NewKinectDataReady
+        {
+            get
+            {
+                return _newDataReady;
+            }
+            set
+            {
+                _newDataReady = value;
+            }
+        }
+
 
         /// <summary>
         /// My cursors
@@ -65,16 +77,23 @@ namespace KinderKinect.ButterflyGarden
             }
         }
 
-        public ButterflyPlayer(Game1 myGame, Vector3 Position, float Rotation)
+        public ButterflyPlayer(Game1 myGame, Vector3 Position, float Rotation, Camera cam)
         {
             hands = new List<ICursor>();
-            hands.Add(new KinectRelativeScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Left));
-            hands.Add(new KinectRelativeScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Right));
+            hands.Add(new KinectRelativeScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Left, myGame.GraphicsDevice.Viewport));
+            hands.Add(new KinectRelativeScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Right, myGame.GraphicsDevice.Viewport));
             kinect = myGame.Services.GetService(typeof(KinectService)) as KinectService;
             batch = myGame.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
             position = Position;
             rotation = Rotation;
             world = Matrix.CreateFromAxisAngle(Vector3.Up, rotation) * Matrix.CreateTranslation(Position);
+            world = Matrix.CreateScale(0.1f) * world;
+            (hands[0] as KinectRelativeScreenspaceCursor).SetWorld(world);
+            (hands[1] as KinectRelativeScreenspaceCursor).SetWorld(world);
+            (hands[0] as KinectRelativeScreenspaceCursor).SetView(cam.ViewMatrix);
+            (hands[1] as KinectRelativeScreenspaceCursor).SetView(cam.ViewMatrix);
+            (hands[0] as KinectRelativeScreenspaceCursor).SetView(cam.ProjectionMatrix);
+            (hands[1] as KinectRelativeScreenspaceCursor).SetView(cam.ProjectionMatrix);
         }
 
         public void LoadContent(ContentManager content)
@@ -163,12 +182,8 @@ namespace KinderKinect.ButterflyGarden
                     effect.TextureEnabled = true;
                 }
                 // Draw the mesh, using the effects set above.
-              //  mesh.Draw();
+                mesh.Draw();
             }
-           /* batch.Begin();
-            batch.Draw(testTex,new Rectangle((int)(hands[0].Position.X - 24), (int)(hands[0].Position.Y - 24), 2 * 24, 2 * 24), Color.White);
-            batch.Draw(testTex, new Rectangle((int)(hands[1].Position.X - 24), (int)(hands[1].Position.Y - 24), 2 * 24, 2 * 24), Color.White);
-            batch.End();*/
         }
     }
 }
