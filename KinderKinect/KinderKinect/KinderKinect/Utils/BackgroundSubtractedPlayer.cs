@@ -45,6 +45,7 @@ namespace KinderKinect.Utils
             : base(game)
         {
             myGame = game as Game1;
+            
         }
 
         /// <summary>

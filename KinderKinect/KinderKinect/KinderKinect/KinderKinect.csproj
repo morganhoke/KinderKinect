@@ -87,12 +87,14 @@
     <Compile Include="Utils\KinectService.cs" />
     <Compile Include="Utils\Logger.cs" />
     <Compile Include="Utils\MouseCursor.cs" />
+    <Compile Include="Utils\SpriteSheetLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png">
       <XnaPlatformSpecific>true</XnaPlatformSpecific>
     </Content>
+    <Content Include="SpriteSheetReferenceFiles\CursorSpriteSheet.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KinderKinectContent\KinderKinectContent.contentproj">
