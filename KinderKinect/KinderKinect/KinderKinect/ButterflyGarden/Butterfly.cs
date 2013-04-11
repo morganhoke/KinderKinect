@@ -13,11 +13,27 @@ namespace KinderKinect.ButterflyGarden
 {
     class Butterfly
     {
-        private const int padX = 24, padY = 24, selectionMilis = 500;
+        private const int padX = 50, padY = 50, selectionMilis = 500;
         private Stopwatch timeSelected;
         public delegate void ButterflySelectedEventHandler(object sender, EventArgs e);
         public event ButterflySelectedEventHandler Selected;
         private bool hidden;
+
+
+        private double positionScale;
+
+        private bool _selectable = false;
+        public bool Selectable
+        {
+            get
+            {
+                return _selectable;
+            }
+            set
+            {
+                _selectable = value;
+            }
+        }
 
         /// <summary>
         /// I do this horrible aweful hack to simplify my content loading/unloading job
@@ -27,6 +43,8 @@ namespace KinderKinect.ButterflyGarden
         private Matrix[] transforms;
         private Matrix World;
         private Model myModel;
+
+        private Vector3 position;
 
         private ButterflyColors myColor;
         public ButterflyColors Color
@@ -77,6 +95,7 @@ namespace KinderKinect.ButterflyGarden
             timeSelected = new Stopwatch();
             myColor = color;
             hidden = false;
+            position = Position;
 
         }
 
@@ -88,6 +107,17 @@ namespace KinderKinect.ButterflyGarden
         public void Show()
         {
             hidden = false;
+        }
+
+        public void SetPositionScale(double scale)
+        {
+            positionScale = scale;
+            World = Matrix.CreateTranslation(position * (float)(positionScale));
+        }
+
+        public bool GetHidden()
+        {
+            return hidden;
         }
 
         public void LoadContent(ContentManager content)
@@ -115,7 +145,7 @@ namespace KinderKinect.ButterflyGarden
             }
         }
 
-        public void Draw(Camera myCam)
+        public void Draw(Camera myCam, SpriteBatch sb)
         {
             if (!hidden)
             {
@@ -138,7 +168,6 @@ namespace KinderKinect.ButterflyGarden
                         effect.Texture = ButterflyTextures[(int)(myColor)];
 
                     }
-                    // Draw the mesh, using the effects set above.
                     mesh.Draw();
                 }
             }

@@ -55,8 +55,9 @@ namespace KinderKinect.Utils.Gui
                         }
                     }
                 }
-                else if (!cursorsInside.Contains(c))
+                else if (cursorsInside.Contains(c))
                 {
+                    cursorsInside.Remove(c);
                     if (Exited != null)
                     {
                         Exited(c, new EventArgs());

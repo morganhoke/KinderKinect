@@ -77,23 +77,19 @@ namespace KinderKinect.ButterflyGarden
             }
         }
 
-        public ButterflyPlayer(Game1 myGame, Vector3 Position, float Rotation, Camera cam)
+        public ButterflyPlayer(Game1 MyGame, Vector3 Position, float Rotation, Camera cam)
         {
+           
+            myGame = MyGame;
+            kinectVideoTexture = new Texture2D(myGame.GraphicsDevice, 640, 480);
             hands = new List<ICursor>();
-            hands.Add(new KinectRelativeScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Left, myGame.GraphicsDevice.Viewport));
-            hands.Add(new KinectRelativeScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Right, myGame.GraphicsDevice.Viewport));
+            hands.Add(new KinectAbsoluteScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Left, myGame));
+            hands.Add(new KinectAbsoluteScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Right, myGame));
             kinect = myGame.Services.GetService(typeof(KinectService)) as KinectService;
+            kinect.RegisterKinectListener(this);
             batch = myGame.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
             position = Position;
             rotation = Rotation;
-            world = Matrix.CreateFromAxisAngle(Vector3.Up, rotation) * Matrix.CreateTranslation(Position);
-            world = Matrix.CreateScale(0.1f) * world;
-            (hands[0] as KinectRelativeScreenspaceCursor).SetWorld(world);
-            (hands[1] as KinectRelativeScreenspaceCursor).SetWorld(world);
-            (hands[0] as KinectRelativeScreenspaceCursor).SetView(cam.ViewMatrix);
-            (hands[1] as KinectRelativeScreenspaceCursor).SetView(cam.ViewMatrix);
-            (hands[0] as KinectRelativeScreenspaceCursor).SetView(cam.ProjectionMatrix);
-            (hands[1] as KinectRelativeScreenspaceCursor).SetView(cam.ProjectionMatrix);
         }
 
         public void LoadContent(ContentManager content)
@@ -113,7 +109,7 @@ namespace KinderKinect.ButterflyGarden
                 var depthBits = new DepthImagePixel[kinect.DepthFrame.PixelDataLength];
                 kinect.DepthFrame.CopyDepthImagePixelDataTo(depthBits);
 
-                var colorBits = new byte[kinect.ColorFrame.PixelDataLength];
+                var colorBits = new byte[kinect.ColorFrame.Width * kinect.ColorFrame.Height * kinect.ColorFrame.BytesPerPixel];
                 kinect.ColorFrame.CopyPixelDataTo(colorBits);
                 int colorStride = kinect.ColorFrame.BytesPerPixel * kinect.ColorFrame.Width;
 
@@ -132,11 +128,20 @@ namespace KinderKinect.ButterflyGarden
 
                     var colorPixelIndex = (colorPoint.X * kinect.ColorFrame.BytesPerPixel) + (colorPoint.Y * colorStride);
 
-                    output[outputIndex + 2] = colorBits[colorPixelIndex];
-                    output[outputIndex + 1] = colorBits[colorPixelIndex + 1];
-                    output[outputIndex + 0] = colorBits[colorPixelIndex + 2];
-                    output[outputIndex + 3] = playerIndex == kinect.ActiveSkeletonNumber ? (byte)255 : (byte)0;
-
+                    if (colorPixelIndex < colorBits.Length)
+                    {
+                        output[outputIndex + 2] = colorBits[colorPixelIndex];
+                        output[outputIndex + 1] = colorBits[colorPixelIndex + 1];
+                        output[outputIndex + 0] = colorBits[colorPixelIndex + 2];
+                        output[outputIndex + 3] = playerIndex == kinect.ActiveSkeletonNumber ? (byte)255 : (byte)0;
+                    }
+                    else
+                    {
+                        output[outputIndex + 2] = 0;
+                        output[outputIndex + 1] = 0;
+                        output[outputIndex + 0] = 0;
+                        output[outputIndex + 3] = 0;
+                    }
                 }
 
                 kinectVideoTexture = new Texture2D(myGame.GraphicsDevice, kinect.DepthFrame.Width, kinect.DepthFrame.Height, false, SurfaceFormat.Color);
@@ -163,7 +168,7 @@ namespace KinderKinect.ButterflyGarden
             }
         }
 
-        public void Draw(Camera cam)
+        public void Draw(Camera cam, SpriteBatch sb)
         {
            
 
@@ -175,15 +180,22 @@ namespace KinderKinect.ButterflyGarden
                 foreach (BasicEffect effect in mesh.Effects)
                 {
                     effect.EnableDefaultLighting();
-                    effect.World = world;
+                    effect.PreferPerPixelLighting = true;
+                    effect.World = Matrix.CreateScale(0.1f) * world;
                     effect.View = cam.ViewMatrix;
                     effect.Projection = cam.ProjectionMatrix;
-                    effect.Texture = kinectVideoTexture;
                     effect.TextureEnabled = true;
+                    effect.Texture = kinectVideoTexture;
                 }
                 // Draw the mesh, using the effects set above.
                 mesh.Draw();
             }
+
+            sb.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied);
+            sb.Draw(kinectVideoTexture, new Rectangle(0, 0, myGame.GraphicsDevice.PresentationParameters.BackBufferWidth, myGame.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
+            sb.End();
+            
         }
     }
 }
+

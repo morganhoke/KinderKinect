@@ -86,7 +86,6 @@
     <Compile Include="Utils\Camera\CameraComponent.cs" />
     <Compile Include="Utils\Cursors\ICursor.cs" />
     <Compile Include="Utils\Cursors\KinectAbsoluteScreenspaceCursor.cs" />
-    <Compile Include="Utils\Cursors\KinectRelativeScreenspaceCursor.cs" />
     <Compile Include="Utils\Cursors\MouseCursor.cs" />
     <Compile Include="Utils\DebugDrawer.cs" />
     <Compile Include="Utils\Gui\Button.cs" />

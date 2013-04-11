@@ -27,16 +27,25 @@ namespace KinderKinect.ButterflyGarden
             content = new ContentManager(myGame.Services, "Content");
             myCamera = new Camera();
             float aspectRatio = (float)myGame.GraphicsDevice.PresentationParameters.BackBufferWidth / (float)myGame.GraphicsDevice.PresentationParameters.BackBufferHeight;
-            myCamera.Perspective(90, aspectRatio, 0.1f, 1000f);
+            myCamera.Perspective(90, myGame.GraphicsDevice.Viewport.AspectRatio, 0.1f, 20f);
            
             myCamera.Position = new Vector3(0f, 1f, -10f);
             myCamera.LookAt(new Vector3(0, 0, 0));
-            player = new ButterflyPlayer(myGame, new Vector3(0f, 1f, 2f), 0f, myCamera);
+            player = new ButterflyPlayer(myGame, new Vector3(0f, 2f, 0) * 2, 0f, myCamera);
+            
         }
 
         public void Initalize()
         {
             currentLevel = new ButterflyLevel(myCamera, player);
+            currentLevel.Completed += new ButterflyLevel.LevelFinishedEventHandler(currentLevel_Completed);
+        }
+
+        void currentLevel_Completed(object sender, EventArgs e)
+        {
+            currentLevel = new ButterflyLevel(myCamera, player);
+            currentLevel.LoadContent(content, myGame.GraphicsDevice.Viewport);
+            currentLevel.Completed += new ButterflyLevel.LevelFinishedEventHandler(currentLevel_Completed);
         }
 
         public void LoadContent()
@@ -60,11 +69,7 @@ namespace KinderKinect.ButterflyGarden
 
         public void Draw(GameTime gameTime)
         {
-            currentLevel.Draw(myGame.GraphicsDevice);
-            sb.Begin();
-            sb.Draw(Butterfly.ButterflyTextures[(int)(Butterfly.ButterflyColors.Yellow)], new Rectangle((int)(player.Hands[0].Position.X), (int)(player.Hands[0].Position.Y), 48, 48), Color.White);
-            sb.Draw(Butterfly.ButterflyTextures[(int)(Butterfly.ButterflyColors.Yellow)], new Rectangle((int)(player.Hands[1].Position.X), (int)(player.Hands[1].Position.Y), 48, 48), Color.White);
-            sb.End();
+            currentLevel.Draw(myGame.GraphicsDevice, sb);
         }
 
         public void Unload()
