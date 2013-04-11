@@ -17,6 +17,14 @@ namespace KinderKinect.Utils
         }
 
         /// <summary>
+        /// Represents a rectangle region for selection
+        /// </summary>
+        Rectangle rect
+        {
+            get;
+        }
+
+        /// <summary>
         /// Updates the postition of the cursor if it is polling-based
         /// </summary>
         void Update();

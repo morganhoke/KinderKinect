@@ -14,7 +14,7 @@ namespace KinderKinect.ButterflyGarden
 {
     class Butterfly
     {
-        private const int padX = 50, padY = 50, selectionMilis = 500;
+        private const int padX = 50, padY = 50, selectionMilis = 300;
         private Stopwatch timeSelected;
         public delegate void ButterflySelectedEventHandler(object sender, EventArgs e);
         public event ButterflySelectedEventHandler Selected;
@@ -87,11 +87,13 @@ namespace KinderKinect.ButterflyGarden
 
         private static Random rand = new Random();
 
+        private Vector3 startPosition;
+
         public Butterfly(Vector3 Position, float rotation, Viewport viewPort, Matrix View, Matrix Projection, ButterflyColors color)
         {
 
             World = Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position);
-            Vector3 ScreenProjection = viewPort.Project(Position, Projection, View, Matrix.CreateScale(0.1f) * World);
+            Vector3 ScreenProjection = viewPort.Project(Position, Projection, View, Matrix.CreateScale(0.1f) * Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position));
             hitbox = new Hitbox(new Rectangle((int)(ScreenProjection.X - padX), (int)(ScreenProjection.Y - padY), 2 * padX, 2 * padY));
             hitbox.Entered += new Hitbox.EnteredEventHandler(hitbox_Entered);
             hitbox.Exited += new Hitbox.ExitedEventHandler(hitbox_Exited);
@@ -99,7 +101,7 @@ namespace KinderKinect.ButterflyGarden
             myColor = color;
             hidden = false;
             position = Position;
-           
+            startPosition = Position * 20;
             msOffset = rand.Next(0, 500);
 
         }
@@ -114,11 +116,17 @@ namespace KinderKinect.ButterflyGarden
             hidden = false;
         }
 
-        public void SetPositionScale(double scale)
+        public void setPosition(Vector3 Position)
         {
-            positionScale = scale;
-            World = Matrix.CreateTranslation(position * (float)(positionScale));
+            position = Position;
+            World = Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position);
         }
+
+        public Vector3 getPosition()
+        {
+            return position;
+        }
+
 
         public bool GetHidden()
         {
@@ -162,6 +170,7 @@ namespace KinderKinect.ButterflyGarden
                 Selected(this, new EventArgs());
             }
             animationPlayer.Update(gameTime.ElapsedGameTime, true, Matrix.Identity);
+            
         }
 
         public void Draw(Camera myCam, SpriteBatch sb)
@@ -190,6 +199,11 @@ namespace KinderKinect.ButterflyGarden
                     }
                     mesh.Draw();
                 }
+
+                //For Debugging6
+               /* sb.Begin();
+                sb.Draw(ButterflyTextures[0], hitbox.HitArea, Microsoft.Xna.Framework.Color.White);
+                sb.End();*/
             }
         }
     }

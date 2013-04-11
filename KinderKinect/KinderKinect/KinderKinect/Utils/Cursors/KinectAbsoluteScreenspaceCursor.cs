@@ -25,6 +25,15 @@ namespace KinderKinect.Utils
             get { return _position; }
         }
 
+        protected Rectangle _rect;
+        public Rectangle Rectangle
+        {
+            get
+            {
+                return _rect;
+            }
+        }
+
         protected Handedness handSelect;
         protected KinectService kinect;
         protected Game1 myGame;
@@ -36,6 +45,10 @@ namespace KinderKinect.Utils
             kinect = Kinect;
             handSelect = hand;
             kinect.RegisterKinectListener(this);
+            _rect = new Rectangle();
+            _rect.Width = 48;
+            _rect.Height = 48;
+            _position = new Vector2();
         }
 
         public virtual void Update()
@@ -56,6 +69,8 @@ namespace KinderKinect.Utils
                 DepthImagePoint handPoint = kinect.Kinect.CoordinateMapper.MapSkeletonPointToDepthPoint(hand.Position, kinect.Kinect.DepthStream.Format);
                 _position.X = handPoint.X * myGame.GraphicsDevice.PresentationParameters.BackBufferWidth / kinect.Kinect.DepthStream.FrameWidth; // scales up to whatever resolution I like
                 _position.Y = handPoint.Y * myGame.GraphicsDevice.PresentationParameters.BackBufferHeight / kinect.Kinect.DepthStream.FrameHeight;
+                _rect.X = (int)(_position.X - 24);
+                _rect.Y = (int)(_position.Y - 24);
                 _newDataReady = false;
             }
         }
@@ -81,6 +96,12 @@ namespace KinderKinect.Utils
         public void BreakHoverState()
         {
             //throw new NotImplementedException();
+        }
+
+
+        public Rectangle rect
+        {
+            get { return _rect; }
         }
     }
 }

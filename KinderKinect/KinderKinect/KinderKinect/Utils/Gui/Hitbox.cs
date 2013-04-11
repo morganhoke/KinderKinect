@@ -44,7 +44,7 @@ namespace KinderKinect.Utils.Gui
         {
             foreach (ICursor c in cursors)
             {
-                if (hitArea.Contains((int)(c.Position.X), (int)(c.Position.Y)))
+                if (hitArea.Intersects(c.rect))
                 {
                     if (!cursorsInside.Contains(c))
                     {

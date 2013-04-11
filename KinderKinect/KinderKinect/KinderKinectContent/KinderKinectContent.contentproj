@@ -141,11 +141,12 @@
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\..\Downloads\SkinningSample_4_0\SkinnedModelPipeline\SkinnedModelPipeline.csproj">
+  <ItemGroup>
+    <ProjectReference Include="..\References\SkinnedModelPipeline\SkinnedModelPipeline.csproj">
       <Project>{4636C7E1-B845-4B83-B96D-64A11B8A4515}</Project>
       <Name>SkinnedModelPipeline</Name>
     </ProjectReference>
-
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

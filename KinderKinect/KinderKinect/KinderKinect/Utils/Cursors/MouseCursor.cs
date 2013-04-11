@@ -37,5 +37,11 @@ namespace KinderKinect.Utils
         {
            
         }
+
+
+        public Rectangle rect
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }
