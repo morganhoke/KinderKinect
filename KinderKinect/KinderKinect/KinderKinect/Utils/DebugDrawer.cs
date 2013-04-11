@@ -20,7 +20,7 @@ namespace KinderKinect.Utils
         Texture2D debugTexture;
         Game1 myGame;
         SpriteBatch spriteBatch;
-        ICursor cursorL, cursorR;
+        ICursor cursorL, cursorR, cursorM;
         BackgroundSubtractedPlayer player;
         public DebugDrawer(Game game)
             : base(game)
@@ -33,8 +33,9 @@ namespace KinderKinect.Utils
         protected override void LoadContent()
         {
             debugTexture = myGame.Content.Load<Texture2D>("Textures\\DebugColor");
-            cursorR = new KinectAbsoluteScreenspaceCursor(myGame, KinectAbsoluteScreenspaceCursor.Handedness.Right);
-            cursorL = new KinectAbsoluteScreenspaceCursor(myGame, KinectAbsoluteScreenspaceCursor.Handedness.Left);
+            cursorR = new KinectAbsoluteScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Left, myGame);
+            cursorL = new KinectAbsoluteScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Right, myGame);
+            cursorM = new MouseCursor();
             player = new BackgroundSubtractedPlayer(myGame);
             myGame.Components.Add(player);
             base.LoadContent();
@@ -60,6 +61,7 @@ namespace KinderKinect.Utils
             // TODO: Add your update code here
             cursorR.Update();
             cursorL.Update();
+            cursorM.Update();
             base.Update(gameTime);
         }
 
@@ -69,6 +71,7 @@ namespace KinderKinect.Utils
             spriteBatch.Begin();
             spriteBatch.Draw(debugTexture, new Rectangle((int)cursorR.Position.X, (int)cursorR.Position.Y, 48, 48),null, Color.White, 0f, new Vector2(24, 24), SpriteEffects.None, 0f);
             spriteBatch.Draw(debugTexture, new Rectangle((int)cursorL.Position.X, (int)cursorL.Position.Y, 48, 48), null, Color.White, 0f, new Vector2(24, 24), SpriteEffects.None, 0f);
+            spriteBatch.Draw(debugTexture, new Rectangle((int)cursorM.Position.X, (int)cursorM.Position.Y, 48, 48), null, Color.White, 0f, new Vector2(24, 24), SpriteEffects.None, 0f);
             spriteBatch.End();
 
             GraphicsDevice.BlendState = BlendState.Opaque;

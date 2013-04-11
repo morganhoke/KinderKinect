@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 
 
 namespace KinderKinect.Utils
 {
     class KinectAbsoluteScreenspaceCursor : ICursor, IKinectListener
     {
-        bool _newDataReady = false;
+        protected bool _newDataReady = false;
         public enum Handedness
         {
             Left,
@@ -18,26 +19,26 @@ namespace KinderKinect.Utils
         };
 
 
-        private Vector2 _position;
+        protected Vector2 _position;
         public Vector2 Position
         {
             get { return _position; }
         }
 
-        private Handedness handSelect;
-        private KinectService kinect;
-        private Game1 myGame;
+        protected Handedness handSelect;
+        protected KinectService kinect;
+        protected Game1 myGame;
 
 
-        public KinectAbsoluteScreenspaceCursor(Game1 MyGame, Handedness hand)
+        public KinectAbsoluteScreenspaceCursor(KinectService Kinect, Handedness hand, Game1 MyGame)
         {
             myGame = MyGame;
-            kinect = (MyGame).Services.GetService(typeof(KinectService)) as KinectService;
+            kinect = Kinect;
             handSelect = hand;
             kinect.RegisterKinectListener(this);
         }
 
-        public void Update()
+        public virtual void Update()
         {
             if (kinect.ActiveSkeletonNumber != 0 && _newDataReady)
             {
@@ -51,9 +52,10 @@ namespace KinderKinect.Utils
                     hand = kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.HandRight];
                 }
 
-                ColorImagePoint handPoint = kinect.Kinect.CoordinateMapper.MapSkeletonPointToColorPoint(hand.Position, ColorImageFormat.RgbResolution640x480Fps30);
-                _position.X = handPoint.X * myGame.GraphicsDevice.PresentationParameters.BackBufferWidth / 640; // scales up to whatever resolution I like
-                _position.Y = handPoint.Y * myGame.GraphicsDevice.PresentationParameters.BackBufferHeight / 480;
+                
+                DepthImagePoint handPoint = kinect.Kinect.CoordinateMapper.MapSkeletonPointToDepthPoint(hand.Position, kinect.Kinect.DepthStream.Format);
+                _position.X = handPoint.X * myGame.GraphicsDevice.PresentationParameters.BackBufferWidth / kinect.Kinect.DepthStream.FrameWidth; // scales up to whatever resolution I like
+                _position.Y = handPoint.Y * myGame.GraphicsDevice.PresentationParameters.BackBufferHeight / kinect.Kinect.DepthStream.FrameHeight;
                 _newDataReady = false;
             }
         }

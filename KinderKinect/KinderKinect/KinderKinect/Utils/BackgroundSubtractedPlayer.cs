@@ -129,7 +129,7 @@ namespace KinderKinect.Utils
         {
             //This is temp draw code, to be replaced by some nice 3d code
             SpriteBatch batch = myGame.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
-       
+
             batch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
             batch.Draw(kinectVideoTexture, new Rectangle(0, 0, myGame.GraphicsDevice.PresentationParameters.BackBufferWidth, myGame.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
             batch.End();

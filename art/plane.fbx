@@ -10,10 +10,10 @@ FBXHeaderExtension:  {
 		Version: 1000
 		Year: 2013
 		Month: 04
-		Day: 01
-		Hour: 21
-		Minute: 55
-		Second: 33
+		Day: 10
+		Hour: 11
+		Minute: 18
+		Second: 24
 		Millisecond: 0
 	}
 	Creator: "FBX SDK/FBX Plugins build 20070228"
@@ -21,8 +21,8 @@ FBXHeaderExtension:  {
 		FlagPLE: 0
 	}
 }
-CreationTime: "2013-04-01 21:55:33:000"
-Creator: "Blender version 2.66 (sub 1)"
+CreationTime: "2013-04-10 11:18:24:000"
+Creator: "Blender version 2.65 (sub 0)"
 
 ; Object definitions
 ;------------------------------------------------------------------
@@ -57,7 +57,7 @@ Objects:  {
 			Property: "QuaternionInterpolate", "bool", "",0
 			Property: "Visibility", "Visibility", "A+",1
 			Property: "Lcl Translation", "Lcl Translation", "A+",0.000000000000000,0.000000000000000,1.000000000000000
-			Property: "Lcl Rotation", "Lcl Rotation", "A+",90.000043485483872,89.999961523213827,0.000000000000000
+			Property: "Lcl Rotation", "Lcl Rotation", "A+",90.000043485483872,-0.000000000000000,0.000000000000000
 			Property: "Lcl Scaling", "Lcl Scaling", "A+",1.000000000000000,1.000000000000000,1.000000000000000
 			Property: "RotationOffset", "Vector3D", "",0,0,0
 			Property: "RotationPivot", "Vector3D", "",0,0,0
@@ -130,7 +130,7 @@ Objects:  {
 		MultiTake: 1
 		Shading: Y
 		Culling: "CullingOff"
-		Vertices: 1.000000,-1.000000,-0.000000,-1.000000,-1.000000,-0.000000,1.000000,1.000000,0.000000,-1.000000,1.000000,0.000000
+		Vertices: 1.000000,-1.000000,0.000000,-1.000000,-1.000000,0.000000,1.000000,1.000000,0.000000,-1.000000,1.000000,0.000000
 		PolygonVertexIndex: 1,0,2,-4
 		Edges: 
 		GeometryVersion: 124
@@ -142,10 +142,42 @@ Objects:  {
 			Normals: 0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000
 			 ,0.000000000000000,0.000000000000000,1.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000
 		}
+		LayerElementUV: 0 {
+			Version: 101
+			Name: "UVMap"
+			MappingInformationType: "ByPolygonVertex"
+			ReferenceInformationType: "IndexToDirect"
+			UV: 0.003058,1.000000,0.000000,0.003058,0.996942,0.000000,1.000000,0.996942
+			UVIndex: 0,1,2,3
+		}
+		LayerElementTexture: 0 {
+			Version: 101
+			Name: ""
+			MappingInformationType: "NoMappingInformation"
+			ReferenceInformationType: "IndexToDirect"
+			BlendMode: "Translucent"
+			TextureAlpha: 1
+			TextureId: 
+		}
+		LayerElementMaterial: 0 {
+			Version: 101
+			Name: ""
+			MappingInformationType: "AllSame"
+			ReferenceInformationType: "IndexToDirect"
+			Materials: 0
+		}
 		Layer: 0 {
 			Version: 100
 			LayerElement:  {
 				Type: "LayerElementNormal"
+				TypedIndex: 0
+			}
+			LayerElement:  {
+				Type: "LayerElementMaterial"
+				TypedIndex: 0
+			}
+			LayerElement:  {
+				Type: "LayerElementUV"
 				TypedIndex: 0
 			}
 		}
@@ -188,7 +220,7 @@ Objects:  {
 		NbPoseNodes: 1
 		PoseNode:  {
 			Node: "Model::Plane"
-			Matrix: -0.000000639757843,0.000000000000000,-1.000000000000000,0.000000000000000,1.000000000000000,-0.000000639757843,-0.000000639757843,0.000000000000000,-0.000000639757843,-1.000000000000000,0.000000000000409,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,1.000000000000000
+			Matrix: 1.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,0.000000000000000,-0.000000639757843,1.000000000000000,0.000000000000000,0.000000000000000,-1.000000000000000,-0.000000639757843,0.000000000000000,0.000000000000000,0.000000000000000,1.000000000000000,1.000000000000000
 		}
 	}
 	GlobalSettings:  {
@@ -236,6 +268,7 @@ Relations:  {
 
 Connections:  {
 	Connect: "OO", "Model::Plane", "Model::Scene"
+	Connect: "OO", "Material::unnamed", "Model::Plane"
 }
 ;Takes and animation section
 ;----------------------------------------------------
@@ -265,7 +298,7 @@ Version5:  {
 		SnapOnFrames: 0
 		ReferenceTimeIndex: -1
 		TimeLineStartTime: 0
-		TimeLineStopTime: 479181389250
+		TimeLineStopTime: 196291171500
 	}
 	RendererSetting:  {
 		DefaultCamera: "Producer Perspective"

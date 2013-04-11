@@ -1,2 +1,15 @@
 Content\Textures\DebugColor.xnb
-Content\Models\simplePlane.xnb
+Content\Textures\ButterflyGarden\Red.xnb
+Content\Textures\ButterflyGarden\Yellow.xnb
+Content\Textures\ButterflyGarden\Blue.xnb
+Content\Textures\ButterflyGarden\Green.xnb
+Content\Textures\ButterflyGarden\Purple.xnb
+Content\Textures\ButterflyGarden\Black.xnb
+Content\Textures\ButterflyGarden\White.xnb
+Content\Textures\ButterflyGarden\Brown.xnb
+Content\Textures\ButterflyGarden\Orange.xnb
+Content\Textures\ButterflyGarden\Pink.xnb
+Content\Textures\CursorSpriteSheet.xnb
+Content\SpriteFont1.xnb
+Content\Models\butterfly.xnb
+Content\Models\plane.xnb

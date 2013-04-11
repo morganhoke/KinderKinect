@@ -127,7 +127,13 @@ namespace KinderKinect.Utils
             // Start the Kinect running and select all the streams
             try
             {
-                myKinect.SkeletonStream.Enable();
+                myKinect.SkeletonStream.Enable(new TransformSmoothParameters(){
+                    Smoothing = 0.5f,
+                    Correction = 0.5f,
+                    Prediction = 0.5f,
+                    JitterRadius = 0.05f,
+                    MaxDeviationRadius = 0.04f
+                    });
                 myKinect.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                 myKinect.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
                 myKinect.Start();
@@ -152,7 +158,7 @@ namespace KinderKinect.Utils
             {
                 return;
             }
-
+            if(myKinect!= null)
             myKinect.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(myKinect_AllFramesReady);
             isRunning = true;
         }
