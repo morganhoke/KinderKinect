@@ -193,7 +193,7 @@ namespace KinderKinect.ButterflyGarden
                         effect.World = Matrix.CreateScale(0.1f) * World;
                         effect.View = myCam.ViewMatrix;
                         effect.Projection = myCam.ProjectionMatrix;
-                        
+                        effect.DiffuseColor = Microsoft.Xna.Framework.Color.White.ToVector3();
                         effect.Texture = ButterflyTextures[(int)(myColor)];
 
                     }
@@ -201,9 +201,9 @@ namespace KinderKinect.ButterflyGarden
                 }
 
                 //For Debugging6
-               /* sb.Begin();
+                sb.Begin();
                 sb.Draw(ButterflyTextures[0], hitbox.HitArea, Microsoft.Xna.Framework.Color.White);
-                sb.End();*/
+                sb.End();
             }
         }
     }

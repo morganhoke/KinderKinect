@@ -58,16 +58,16 @@ namespace KinderKinect.ButterflyGarden
                             colors[i] = Color.Blue;
                             break;
                         case Butterfly.ButterflyColors.Brown:
-                            colors[i] = Color.Brown;
+                            colors[i] = Color.SaddleBrown;
                             break;
                         case Butterfly.ButterflyColors.Green:
-                            colors[i] = Color.Green;
+                            colors[i] = Color.LawnGreen;
                             break;
                         case Butterfly.ButterflyColors.Orange:
-                            colors[i] = Color.Orange;
+                            colors[i] = Color.DarkOrange;
                             break;
                         case Butterfly.ButterflyColors.Pink:
-                            colors[i] = Color.DeepPink;
+                            colors[i] = Color.Orchid;
                             break;
                         case Butterfly.ButterflyColors.Purple:
                             colors[i] = Color.Purple;
@@ -76,7 +76,7 @@ namespace KinderKinect.ButterflyGarden
                             colors[i] = Color.Red;
                             break;
                         case Butterfly.ButterflyColors.White:
-                            colors[i] = Color.White;
+                            colors[i] = Color.GhostWhite;
                             break;
                         case Butterfly.ButterflyColors.Yellow:
                             colors[i] = Color.Yellow;
