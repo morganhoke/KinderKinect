@@ -1,1 +1,1 @@
-Kinect initialise failed
+No Kinects detected

@@ -18,7 +18,7 @@ namespace KinderKinect
         /// </summary>
         void LoadContent();
 
-        void Update();
+        void Update(GameTime gameTime);
 
         void Draw(GameTime gameTime);
 

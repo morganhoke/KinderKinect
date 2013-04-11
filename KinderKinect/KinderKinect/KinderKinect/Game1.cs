@@ -94,7 +94,7 @@ namespace KinderKinect
                 this.Exit();
 
             // TODO: Add your update logic here
-            activitiyManager.Update();
+            activitiyManager.Update(gameTime);
             base.Update(gameTime);
         }
 

@@ -31,9 +31,9 @@ namespace KinderKinect
             currentActivity.LoadContent();
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            currentActivity.Update();
+            currentActivity.Update(gameTime);
         }
 
         public void Draw(GameTime gameTime)

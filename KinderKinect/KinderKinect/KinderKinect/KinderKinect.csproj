@@ -93,6 +93,7 @@
     <Compile Include="Utils\IKinectListener.cs" />
     <Compile Include="Utils\KinectService.cs" />
     <Compile Include="Utils\Logger.cs" />
+    <Compile Include="ButterflyGarden\SingleColorTexureCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
@@ -101,6 +102,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\..\Downloads\SkinningSample_4_0\SkinnedModel\SkinnedModelWindows.csproj">
+      <Project>{0D41E29B-829F-4255-BCA5-64DC2677DA6D}</Project>
+      <Name>SkinnedModelWindows</Name>
+    </ProjectReference>
     <ProjectReference Include="..\KinderKinectContent\KinderKinectContent.contentproj">
       <Name>KinderKinectContent</Name>
       <XnaReferenceType>Content</XnaReferenceType>

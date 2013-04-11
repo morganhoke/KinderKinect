@@ -53,7 +53,7 @@ namespace KinderKinect.ButterflyGarden
             Butterfly.ButterflyTextures = new Texture2D[Enum.GetNames(typeof(Butterfly.ButterflyColors)).Length];
             for (int i = 0; i < Butterfly.ButterflyTextures.Length; i++)
             {
-                Butterfly.ButterflyTextures[i] = content.Load<Texture2D>(@"Textures\ButterflyGarden\" + Enum.GetNames(typeof(Butterfly.ButterflyColors)).ElementAt(i));
+                Butterfly.ButterflyTextures[i] = SingleColorTextureCreator.Create(myGame.GraphicsDevice, 256, 256, (Butterfly.ButterflyColors)(i));
             }
             player.LoadContent(content);
             currentLevel.LoadContent(content, myGame.GraphicsDevice.Viewport);
@@ -62,9 +62,9 @@ namespace KinderKinect.ButterflyGarden
             sb = myGame.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            currentLevel.Update();
+            currentLevel.Update(gameTime);
         }
 
         public void Draw(GameTime gameTime)

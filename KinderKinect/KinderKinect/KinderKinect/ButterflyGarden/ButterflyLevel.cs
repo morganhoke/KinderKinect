@@ -88,14 +88,14 @@ namespace KinderKinect.ButterflyGarden
             b.Hide();
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             player.Update();
             foreach (Butterfly b in butterflies)
             {
                 if (!b.GetHidden())
                 {
-                    b.Update();
+                    b.Update(gameTime);
                     if(b.Selectable)
                     b.HitBox.update(player.Hands);
                 }
@@ -150,7 +150,7 @@ namespace KinderKinect.ButterflyGarden
                     sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 30), Microsoft.Xna.Framework.Color.Orange);
                     break;
                     case Butterfly.ButterflyColors.Pink:
-                    sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 30), Microsoft.Xna.Framework.Color.Pink);
+                    sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 30), Microsoft.Xna.Framework.Color.DeepPink);
                     break;
                     case Butterfly.ButterflyColors.Purple:
                     sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 30), Microsoft.Xna.Framework.Color.Purple);

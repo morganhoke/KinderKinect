@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics;
 using Microsoft.Xna.Framework.Content;
 using KinderKinect.Utils;
+using SkinnedModel;
 
 namespace KinderKinect.ButterflyGarden
 {
@@ -18,7 +19,7 @@ namespace KinderKinect.ButterflyGarden
         public delegate void ButterflySelectedEventHandler(object sender, EventArgs e);
         public event ButterflySelectedEventHandler Selected;
         private bool hidden;
-
+        private AnimationPlayer animationPlayer;
 
         private double positionScale;
 
@@ -45,6 +46,8 @@ namespace KinderKinect.ButterflyGarden
         private Model myModel;
 
         private Vector3 position;
+
+        int msOffset;
 
         private ButterflyColors myColor;
         public ButterflyColors Color
@@ -82,12 +85,12 @@ namespace KinderKinect.ButterflyGarden
             }
         }
 
-
+        private static Random rand = new Random();
 
         public Butterfly(Vector3 Position, float rotation, Viewport viewPort, Matrix View, Matrix Projection, ButterflyColors color)
         {
 
-            World = Matrix.CreateFromAxisAngle(Vector3.Up, rotation) * Matrix.CreateTranslation(Position);
+            World = Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position);
             Vector3 ScreenProjection = viewPort.Project(Position, Projection, View, Matrix.CreateScale(0.1f) * World);
             hitbox = new Hitbox(new Rectangle((int)(ScreenProjection.X - padX), (int)(ScreenProjection.Y - padY), 2 * padX, 2 * padY));
             hitbox.Entered += new Hitbox.EnteredEventHandler(hitbox_Entered);
@@ -96,6 +99,8 @@ namespace KinderKinect.ButterflyGarden
             myColor = color;
             hidden = false;
             position = Position;
+           
+            msOffset = rand.Next(0, 500);
 
         }
 
@@ -123,6 +128,19 @@ namespace KinderKinect.ButterflyGarden
         public void LoadContent(ContentManager content)
         {
             myModel = content.Load<Model>(@"Models\butterfly");
+            SkinningData data = myModel.Tag as SkinningData;
+            
+            if (data == null)
+                throw new InvalidOperationException
+                    ("This model does not contain a SkinningData tag.");
+
+            // Create an animation player, and start decoding an animation clip.
+            animationPlayer = new AnimationPlayer(data);
+
+            AnimationClip clip = data.AnimationClips["ArmatureAction_001"];
+
+            animationPlayer.StartClip(clip);
+            animationPlayer.Update(new TimeSpan(0, 0, 0, msOffset), true, Matrix.Identity);
         }
 
         void hitbox_Exited(object sender, EventArgs e)
@@ -137,34 +155,36 @@ namespace KinderKinect.ButterflyGarden
             timeSelected.Start();
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             if (timeSelected.ElapsedMilliseconds >= selectionMilis)
             {
                 Selected(this, new EventArgs());
             }
+            animationPlayer.Update(gameTime.ElapsedGameTime, true, Matrix.Identity);
         }
 
         public void Draw(Camera myCam, SpriteBatch sb)
         {
             if (!hidden)
             {
-              //  myModel.CopyAbsoluteBoneTransformsTo(transforms);
+                transforms = animationPlayer.GetSkinTransforms();
 
                 // Draw the model. A model can have multiple meshes, so loop.
                 foreach (ModelMesh mesh in myModel.Meshes)
                 {
                     // This is where the mesh orientation is set, as well 
                     // as our camera and projection.
-                    foreach (BasicEffect effect in mesh.Effects)
+                    foreach (SkinnedEffect effect in mesh.Effects)
                     {
                         //effect.GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap
+                        effect.SetBoneTransforms(transforms);
                         effect.EnableDefaultLighting();
                         effect.PreferPerPixelLighting = true;
                         effect.World = Matrix.CreateScale(0.1f) * World;
                         effect.View = myCam.ViewMatrix;
                         effect.Projection = myCam.ProjectionMatrix;
-                        effect.TextureEnabled = true;
+                        
                         effect.Texture = ButterflyTextures[(int)(myColor)];
 
                     }
