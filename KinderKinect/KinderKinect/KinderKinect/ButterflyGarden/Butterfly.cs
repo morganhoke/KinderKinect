@@ -89,12 +89,21 @@ namespace KinderKinect.ButterflyGarden
 
         private Vector3 startPosition;
 
-        public Butterfly(Vector3 Position, float rotation, Viewport viewPort, Matrix View, Matrix Projection, ButterflyColors color)
+        Viewport viewPort;
+
+        Matrix projection;
+
+        Matrix view; 
+
+        public Butterfly(Vector3 Position, float rotation, Viewport ViewPort, Matrix View, Matrix Projection, ButterflyColors color)
         {
 
             World = Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position);
-            Vector3 ScreenProjection = viewPort.Project(Position, Projection, View, Matrix.CreateScale(0.1f) * Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position));
+            Vector3 ScreenProjection = ViewPort.Project(Position, Projection, View, Matrix.CreateScale(0.1f) * Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position));
             hitbox = new Hitbox(new Rectangle((int)(ScreenProjection.X - padX), (int)(ScreenProjection.Y - padY), 2 * padX, 2 * padY));
+            viewPort = ViewPort;
+            projection = Projection;
+            view = View;
             hitbox.Entered += new Hitbox.EnteredEventHandler(hitbox_Entered);
             hitbox.Exited += new Hitbox.ExitedEventHandler(hitbox_Exited);
             timeSelected = new Stopwatch();
@@ -165,6 +174,8 @@ namespace KinderKinect.ButterflyGarden
 
         public void Update(GameTime gameTime)
         {
+            Vector3 ScreenProjection = viewPort.Project(position, projection, view, Matrix.CreateScale(0.1f) * Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(position));
+            hitbox.HitArea = new Rectangle((int)(ScreenProjection.X - padX), (int)(ScreenProjection.Y - padY), 2 * padX, 2 * padY);
             if (timeSelected.ElapsedMilliseconds >= selectionMilis)
             {
                 Selected(this, new EventArgs());

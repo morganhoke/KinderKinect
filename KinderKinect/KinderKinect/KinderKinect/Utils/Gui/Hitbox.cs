@@ -21,6 +21,10 @@ namespace KinderKinect.Utils.Gui
             {
                 return hitArea;
             }
+            set
+            {
+                hitArea = value;
+            }
         }
 
         private List<ICursor> cursorsInside;

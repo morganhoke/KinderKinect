@@ -22,8 +22,11 @@ namespace KinderKinect.ButterflyGarden
 
         SpriteFont font;
 
-        bool LevelStarting; 
+        bool LevelStarting;
 
+        int tier = 0;
+
+        int mistakeCount = 0;
 
         private readonly Vector3[] positions = {  // new Vector3(0f, 1f, 0) * 3,
                                                    new Vector3(.75f, (float)Math.Sqrt(3) / 2f , 0f) * 4,
@@ -65,9 +68,35 @@ namespace KinderKinect.ButterflyGarden
             Random rand = new Random();
             var usedColors = from b in butterflies select b.Color;
             solutionColor = (Butterfly.ButterflyColors)usedColors.ElementAt(random.Next(usedColors.Count()));
-            int numSolution = usedColors.Count(c => c == solutionColor );
+            int numSolution = butterflies.Count(c => c.Color == solutionColor );
             solutionCount = rand.Next(1, numSolution);
             font = content.Load<SpriteFont>("SpriteFont1");
+        }
+
+        public bool tryNewTier()
+        {
+            var visibleButterflies = from b in butterflies where b.GetHidden() == false select b;
+            var avaliableColors = from b in visibleButterflies select b.Color;
+            if (mistakeCount >= visibleButterflies.Count()/4)
+            {
+                return false;
+            }
+            else if (avaliableColors.Count() < 3)
+            {
+                return false;
+            }
+            else
+            {
+                mistakeCount = 0;
+                Random rand = new Random();
+                var usedColors = from b in butterflies select b.Color;
+                solutionColor = (Butterfly.ButterflyColors)usedColors.ElementAt(rand.Next(usedColors.Count()));
+                int numSolution = butterflies.Count(c => c.Color == solutionColor);
+                solutionCount = rand.Next(1, numSolution);
+                tier++;
+                return true;
+            }
+
         }
 
         void ButterflySelected(object sender, EventArgs e)
@@ -88,6 +117,7 @@ namespace KinderKinect.ButterflyGarden
         void WrongChoice(Butterfly b)
         {
             b.Hide();
+            mistakeCount++;
         }
 
         void RightChoice(Butterfly b)
@@ -116,10 +146,12 @@ namespace KinderKinect.ButterflyGarden
                 for (int i = 0; i < positions.Length; i++)
                 {
                     butterflies[i].setPosition(Vector3.Lerp(positions[i] * 5, positions[i], (float)Math.Min(1, elapsedtime/translationMs)));
+                    butterflies[i].Update(gameTime);
                 }
                 if (butterflies[0].getPosition().X == positions[0].X)
                 {
                     LevelStarting = false;
+                    tier = 1;
                 }
             }
         }
@@ -242,8 +274,8 @@ namespace KinderKinect.ButterflyGarden
                 sb.DrawString(font, output2, new Vector2(finalOffset, (device.Viewport.Height / 32) * 30), Microsoft.Xna.Framework.Color.Yellow);
 
                 //For debugging 
-                sb.Draw(Butterfly.ButterflyTextures[0], new Rectangle((int)(player.Hands[0].Position.X - 24), (int)(player.Hands[0].Position.Y - 24), 48, 48), Microsoft.Xna.Framework.Color.White);
-                sb.Draw(Butterfly.ButterflyTextures[0], new Rectangle((int)(player.Hands[01].Position.X - 24), (int)(player.Hands[1].Position.Y - 24), 48, 48), Microsoft.Xna.Framework.Color.White);
+                //sb.Draw(Butterfly.ButterflyTextures[0], new Rectangle((int)(player.Hands[0].Position.X - 24), (int)(player.Hands[0].Position.Y - 24), 48, 48), Microsoft.Xna.Framework.Color.White);
+                //sb.Draw(Butterfly.ButterflyTextures[0], new Rectangle((int)(player.Hands[01].Position.X - 24), (int)(player.Hands[1].Position.Y - 24), 48, 48), Microsoft.Xna.Framework.Color.White);
                 sb.End();
             }
             device.BlendState = restore1;

@@ -43,9 +43,12 @@ namespace KinderKinect.ButterflyGarden
 
         void currentLevel_Completed(object sender, EventArgs e)
         {
-            currentLevel = new ButterflyLevel(myCamera, player);
-            currentLevel.LoadContent(content, myGame.GraphicsDevice.Viewport);
-            currentLevel.Completed += new ButterflyLevel.LevelFinishedEventHandler(currentLevel_Completed);
+            if (!currentLevel.tryNewTier())
+            {
+                currentLevel = new ButterflyLevel(myCamera, player);
+                currentLevel.LoadContent(content, myGame.GraphicsDevice.Viewport);
+                currentLevel.Completed += new ButterflyLevel.LevelFinishedEventHandler(currentLevel_Completed);
+            }
         }
 
         public void LoadContent()
