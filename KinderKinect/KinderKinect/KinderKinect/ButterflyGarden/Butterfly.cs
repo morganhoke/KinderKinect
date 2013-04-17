@@ -36,13 +36,45 @@ namespace KinderKinect.ButterflyGarden
             }
         }
 
+        //AI needs these members
+        private Vector2 wanderDirection;
+        public Vector2 WanderDirection
+        {
+            get
+            {
+                return wanderDirection;
+            }
+            set
+            {
+                wanderDirection = value;
+            }
+        }
+
+        private Vector2 tether;
+        public Vector2 TetherPoint
+        {
+            get
+            {
+                return tether;
+            }
+        }
+
+
         /// <summary>
         /// I do this horrible aweful hack to simplify my content loading/unloading job
         /// </summary>
         public static Texture2D[] ButterflyTextures;
 
         private Matrix[] transforms;
-        private Matrix World;
+        private Matrix world;
+        public Matrix World
+        {
+            get
+            {
+                return world;
+            }
+        }
+
         private Model myModel;
 
         private Vector3 position;
@@ -90,15 +122,37 @@ namespace KinderKinect.ButterflyGarden
         private Vector3 startPosition;
 
         Viewport viewPort;
-
+        public Viewport ViewPort
+        {
+            get
+            {
+                return viewPort;
+            }
+        }
+        
         Matrix projection;
+        public Matrix Projection
+        {
+            get
+            {
+                return projection;
+            }
+        }
 
-        Matrix view; 
+        Matrix view;
+        public Matrix View
+        {
+            get
+            {
+                return view;
+            }
+        }
+
 
         public Butterfly(Vector3 Position, float rotation, Viewport ViewPort, Matrix View, Matrix Projection, ButterflyColors color)
         {
 
-            World = Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position);
+            world = Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position);
             Vector3 ScreenProjection = ViewPort.Project(Position, Projection, View, Matrix.CreateScale(0.1f) * Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position));
             hitbox = new Hitbox(new Rectangle((int)(ScreenProjection.X - padX), (int)(ScreenProjection.Y - padY), 2 * padX, 2 * padY));
             viewPort = ViewPort;
@@ -112,7 +166,8 @@ namespace KinderKinect.ButterflyGarden
             position = Position;
             startPosition = Position * 20;
             msOffset = rand.Next(0, 500);
-
+            wanderDirection = new Vector2();
+            tether = new Vector2(Position.X, Position.Y);
         }
 
         public void Hide()
@@ -128,7 +183,7 @@ namespace KinderKinect.ButterflyGarden
         public void setPosition(Vector3 Position)
         {
             position = Position;
-            World = Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position);
+            world = Matrix.CreateFromAxisAngle(Vector3.Right, -1 * (float)(Math.PI / 2f)) * Matrix.CreateTranslation(Position);
         }
 
         public Vector3 getPosition()
@@ -201,7 +256,7 @@ namespace KinderKinect.ButterflyGarden
                         effect.SetBoneTransforms(transforms);
                         effect.EnableDefaultLighting();
                         effect.PreferPerPixelLighting = true;
-                        effect.World = Matrix.CreateScale(0.1f) * World;
+                        effect.World = Matrix.CreateScale(0.1f) * world;
                         effect.View = myCam.ViewMatrix;
                         effect.Projection = myCam.ProjectionMatrix;
                         effect.DiffuseColor = Microsoft.Xna.Framework.Color.White.ToVector3();
@@ -212,9 +267,10 @@ namespace KinderKinect.ButterflyGarden
                 }
 
                 //For Debugging6
-                sb.Begin();
-                sb.Draw(ButterflyTextures[0], hitbox.HitArea, Microsoft.Xna.Framework.Color.White);
-                sb.End();
+               // sb.Begin();
+               // sb.Draw(ButterflyTextures[0], hitbox.HitArea, Microsoft.Xna.Framework.Color.White);
+               // sb.End();
+                 
             }
         }
     }

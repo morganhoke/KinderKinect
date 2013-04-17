@@ -134,6 +134,7 @@ namespace KinderKinect.ButterflyGarden
                 {
                     if (!b.GetHidden())
                     {
+                        b.setPosition(ButterflyAI.AIGetNewPosition(b, tier, new Vector3(b.TetherPoint, 0)));
                         b.Update(gameTime);
                         if (b.Selectable)
                             b.HitBox.update(player.Hands);
@@ -151,7 +152,6 @@ namespace KinderKinect.ButterflyGarden
                 if (butterflies[0].getPosition().X == positions[0].X)
                 {
                     LevelStarting = false;
-                    tier = 1;
                 }
             }
         }

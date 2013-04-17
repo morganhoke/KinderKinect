@@ -76,6 +76,7 @@
     <Compile Include="ActivityManager.cs" />
     <Compile Include="ButterflyGarden\Butterfly.cs" />
     <Compile Include="ButterflyGarden\ButterflyActivity.cs" />
+    <Compile Include="ButterflyGarden\ButterflyAI.cs" />
     <Compile Include="ButterflyGarden\ButterflyLevel.cs" />
     <Compile Include="ButterflyGarden\ButterflyPlayer.cs" />
     <Compile Include="IActivity.cs" />
