@@ -6,6 +6,8 @@ using KinderKinect.Utils;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Audio;
 
 namespace KinderKinect.ButterflyGarden
 {
@@ -21,6 +23,12 @@ namespace KinderKinect.ButterflyGarden
         int solutionCount;
 
         SpriteFont font;
+
+        AudioEngine engine;
+        WaveBank waveBank;
+        SoundBank soundBank;
+
+        
 
         bool LevelStarting;
 
@@ -71,6 +79,9 @@ namespace KinderKinect.ButterflyGarden
             int numSolution = butterflies.Count(c => c.Color == solutionColor );
             solutionCount = rand.Next(1, numSolution);
             font = content.Load<SpriteFont>("SpriteFont1");
+            engine = new AudioEngine("Content\\Audio\\ButterflyAudio.xgs");
+            waveBank = new WaveBank(engine, "Content\\Audio\\Waves.xwb");
+            soundBank = new SoundBank(engine, "Content\\Audio\\Sounds.xsb");
         }
 
         public bool tryNewTier()
@@ -89,7 +100,7 @@ namespace KinderKinect.ButterflyGarden
             {
                 mistakeCount = 0;
                 Random rand = new Random();
-                var usedColors = from b in butterflies select b.Color;
+                var usedColors = from b in butterflies where b.GetHidden() == false select b.Color;
                 solutionColor = (Butterfly.ButterflyColors)usedColors.ElementAt(rand.Next(usedColors.Count()));
                 int numSolution = butterflies.Count(c => c.Color == solutionColor);
                 solutionCount = rand.Next(1, numSolution);
@@ -116,12 +127,14 @@ namespace KinderKinect.ButterflyGarden
 
         void WrongChoice(Butterfly b)
         {
+            soundBank.PlayCue("73581__benboncan__sad-trombone");
             b.Hide();
             mistakeCount++;
         }
 
         void RightChoice(Butterfly b)
         {
+            soundBank.PlayCue("145459__soughtaftersounds__menu-click-sparkle");
             b.Hide();
         }
 

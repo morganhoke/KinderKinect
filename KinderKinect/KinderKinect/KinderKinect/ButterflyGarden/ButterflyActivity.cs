@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
 using KinderKinect.Utils;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 
 namespace KinderKinect.ButterflyGarden
 {
@@ -16,6 +17,13 @@ namespace KinderKinect.ButterflyGarden
         ButterflyLevel currentLevel;
         ButterflyPlayer player;
         Game1 myGame;
+
+        AudioEngine engine;
+        WaveBank waveBank;
+        SoundBank soundBank;
+
+        Cue BackgroundMusic;
+        Cue Birdsong;
 
         //For debugging and Science!
         SpriteBatch sb;
@@ -53,6 +61,15 @@ namespace KinderKinect.ButterflyGarden
 
         public void LoadContent()
         {
+            engine = new AudioEngine("Content\\Audio\\ButterflyAudio.xgs");
+            waveBank = new WaveBank(engine, "Content\\Audio\\Waves.xwb");
+            soundBank = new SoundBank(engine, "Content\\Audio\\Sounds.xsb");
+            BackgroundMusic = soundBank.GetCue("478503_PlayfulStrollJoyfulOboeMorganCut");
+            Birdsong = soundBank.GetCue("157536__juskiddink__woodland-birdsong-june");
+
+            BackgroundMusic.Play();
+            Birdsong.Play();
+
             Butterfly.ButterflyTextures = new Texture2D[Enum.GetNames(typeof(Butterfly.ButterflyColors)).Length];
             for (int i = 0; i < Butterfly.ButterflyTextures.Length; i++)
             {
