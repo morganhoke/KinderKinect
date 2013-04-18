@@ -13,3 +13,6 @@ Content\Textures\CursorSpriteSheet.xnb
 Content\SpriteFont1.xnb
 Content\Models\butterfly.xnb
 Content\Models\plane.xnb
+Content\Audio\ButterflyAudio.xgs
+Content\Audio\Waves.xwb
+Content\Audio\Sounds.xsb

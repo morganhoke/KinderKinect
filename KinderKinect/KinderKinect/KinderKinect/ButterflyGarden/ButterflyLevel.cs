@@ -92,7 +92,7 @@ namespace KinderKinect.ButterflyGarden
             {
                 return false;
             }
-            else if (avaliableColors.Count() < 3)
+            else if (avaliableColors.Count() <= 3)
             {
                 return false;
             }
