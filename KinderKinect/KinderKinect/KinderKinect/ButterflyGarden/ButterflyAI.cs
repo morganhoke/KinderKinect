@@ -8,6 +8,8 @@ namespace KinderKinect.ButterflyGarden
 {
     class ButterflyAI
     {
+        static Random rand = new Random();
+
         public static Vector3 AIGetNewPosition(Butterfly b, int tier, Vector3 tetherPoint)
         {
             switch (tier)
@@ -46,7 +48,7 @@ namespace KinderKinect.ButterflyGarden
         /// <returns></returns>
         private static Vector3 Wander(Butterfly b, Vector2 tether, float speed)
         {
-            Random rand = new Random();
+            
 
             float wanderX = b.WanderDirection.X;
             float wanderY = b.WanderDirection.Y;
@@ -70,15 +72,15 @@ namespace KinderKinect.ButterflyGarden
 
             float normalizedDistance = distanceFromTether / maxDistanceFromTether;
 
-            float turnBackToTetherSpeed = .3f * normalizedDistance * normalizedDistance;
+            float turnBackToTetherSpeed = normalizedDistance;
 
             float angle = getRotationAngle(new Vector2(ButterflyPosition.X, ButterflyPosition.Y), tether, wanderDirection, turnBackToTetherSpeed);
 
-            wanderDirection = Vector2.Transform(wanderDirection, Matrix.CreateRotationX(angle));
+            wanderDirection = Vector2.Transform(wanderDirection, Matrix.CreateRotationZ(angle));
 
             Vector3 displacement = new Vector3(wanderDirection, 0);
 
-            return Vector3.Clamp(ButterflyPosition + (displacement * speed), new Vector3(-5, -5, 0), new Vector3(5,5,0));
+            return Vector3.Clamp(ButterflyPosition + (displacement * speed), new Vector3(-6, -6, 0), new Vector3(6,5,0));
         }
 
         /// <summary>

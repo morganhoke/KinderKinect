@@ -48,23 +48,26 @@ namespace KinderKinect.Utils.Gui
         {
             foreach (ICursor c in cursors)
             {
-                if (hitArea.Intersects(c.rect))
+                if (c.Valid)
                 {
-                    if (!cursorsInside.Contains(c))
+                    if (hitArea.Intersects(c.rect))
                     {
-                        cursorsInside.Add(c);
-                        if (Entered != null)
+                        if (!cursorsInside.Contains(c))
                         {
-                            Entered(c, new EventArgs());
+                            cursorsInside.Add(c);
+                            if (Entered != null)
+                            {
+                                Entered(c, new EventArgs());
+                            }
                         }
                     }
-                }
-                else if (cursorsInside.Contains(c))
-                {
-                    cursorsInside.Remove(c);
-                    if (Exited != null)
+                    else if (cursorsInside.Contains(c))
                     {
-                        Exited(c, new EventArgs());
+                        cursorsInside.Remove(c);
+                        if (Exited != null)
+                        {
+                            Exited(c, new EventArgs());
+                        }
                     }
                 }
             }

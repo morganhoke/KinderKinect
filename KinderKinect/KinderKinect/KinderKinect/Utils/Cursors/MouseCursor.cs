@@ -43,5 +43,11 @@ namespace KinderKinect.Utils
         {
             get { throw new NotImplementedException(); }
         }
+
+
+        public bool Valid
+        {
+            get { return true; }
+        }
     }
 }

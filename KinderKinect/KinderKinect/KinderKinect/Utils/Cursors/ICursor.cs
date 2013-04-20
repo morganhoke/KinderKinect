@@ -24,6 +24,11 @@ namespace KinderKinect.Utils
             get;
         }
 
+        bool Valid
+        {
+            get;
+        }
+
         /// <summary>
         /// Updates the postition of the cursor if it is polling-based
         /// </summary>

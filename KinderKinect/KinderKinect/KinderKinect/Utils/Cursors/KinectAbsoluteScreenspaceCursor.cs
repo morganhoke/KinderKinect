@@ -34,6 +34,15 @@ namespace KinderKinect.Utils
             }
         }
 
+        protected bool _valid;
+        public bool Valid
+        {
+            get
+            {
+                return _valid;
+            }
+        }
+
         protected Handedness handSelect;
         protected KinectService kinect;
         protected Game1 myGame;
@@ -72,6 +81,15 @@ namespace KinderKinect.Utils
                 _rect.X = (int)(_position.X - 24);
                 _rect.Y = (int)(_position.Y - 24);
                 _newDataReady = false;
+                if (hand.TrackingState == JointTrackingState.Tracked)
+                {
+                    _valid = true;
+                    
+                }
+                else
+                {
+                    _valid = false;
+                }
             }
         }
 
