@@ -28,7 +28,7 @@ namespace KinderKinect.ButterflyGarden
         WaveBank waveBank;
         SoundBank soundBank;
 
-        
+        Logger errorLogger;
 
         bool LevelStarting;
 
@@ -53,12 +53,13 @@ namespace KinderKinect.ButterflyGarden
         public delegate void LevelFinishedEventHandler(object sender, EventArgs e);
         public event LevelFinishedEventHandler Completed;
 
-        public ButterflyLevel(Camera Camera, ButterflyPlayer Player)
+        public ButterflyLevel(Camera Camera, ButterflyPlayer Player, Logger ErrorLogger)
         {
             myCam = Camera;
             player = Player;
             butterflies = new List<Butterfly>();
             LevelStarting = true;
+            errorLogger = ErrorLogger;
         }
 
         public void LoadContent(ContentManager content, Viewport view)
@@ -74,9 +75,9 @@ namespace KinderKinect.ButterflyGarden
                 butterflies[i].setPosition(butterflies[i].getPosition() * 20);
             }
             Random rand = new Random();
-            var usedColors = from b in butterflies select b.Color;
+            var usedColors = from b in butterflies where b.GetHidden() == false select b.Color;
             solutionColor = (Butterfly.ButterflyColors)usedColors.ElementAt(random.Next(usedColors.Count()));
-            int numSolution = butterflies.Count(c => c.Color == solutionColor );
+            int numSolution = butterflies.Count(c => c.Color == solutionColor && c.GetHidden() == false );
             solutionCount = rand.Next(1, numSolution);
             font = content.Load<SpriteFont>("SpriteFont1");
             engine = new AudioEngine("Content\\Audio\\ButterflyAudio.xgs");
@@ -92,7 +93,7 @@ namespace KinderKinect.ButterflyGarden
             {
                 return false;
             }
-            else if (avaliableColors.Count() <= 3)
+            else if (avaliableColors.Count() <= 3 || tier >= 5)
             {
                 return false;
             }
@@ -102,7 +103,7 @@ namespace KinderKinect.ButterflyGarden
                 Random rand = new Random();
                 var usedColors = from b in butterflies where b.GetHidden() == false select b.Color;
                 solutionColor = (Butterfly.ButterflyColors)usedColors.ElementAt(rand.Next(usedColors.Count()));
-                int numSolution = butterflies.Count(c => c.Color == solutionColor);
+                int numSolution = butterflies.Count(c => c.Color == solutionColor && c.GetHidden() == false);
                 solutionCount = rand.Next(1, numSolution);
                 tier++;
                 return true;

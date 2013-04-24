@@ -29,6 +29,8 @@ namespace KinderKinect.ButterflyGarden
         SpriteBatch sb;
         Texture2D debugTex;
 
+        Logger errorLogger;
+
         public ButterflyActivity(Game1 MyGame)
         {
             myGame = MyGame;
@@ -40,12 +42,13 @@ namespace KinderKinect.ButterflyGarden
             myCamera.Position = new Vector3(0f, 1f, -10f);
             myCamera.LookAt(new Vector3(0, 0, 0));
             player = new ButterflyPlayer(myGame, new Vector3(0f, 2f, 0) * 2, 0f, myCamera);
+            errorLogger = myGame.Services.GetService(typeof(Logger)) as Logger;
             
         }
 
         public void Initalize()
         {
-            currentLevel = new ButterflyLevel(myCamera, player);
+            currentLevel = new ButterflyLevel(myCamera, player, errorLogger);
             currentLevel.Completed += new ButterflyLevel.LevelFinishedEventHandler(currentLevel_Completed);
         }
 
@@ -53,7 +56,7 @@ namespace KinderKinect.ButterflyGarden
         {
             if (!currentLevel.tryNewTier())
             {
-                currentLevel = new ButterflyLevel(myCamera, player);
+                currentLevel = new ButterflyLevel(myCamera, player, errorLogger);
                 currentLevel.LoadContent(content, myGame.GraphicsDevice.Viewport);
                 currentLevel.Completed += new ButterflyLevel.LevelFinishedEventHandler(currentLevel_Completed);
             }
