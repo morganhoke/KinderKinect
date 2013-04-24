@@ -15,7 +15,7 @@ namespace KinderKinect.ButterflyGarden
             switch (tier)
             {
                 case 0:
-                    goto case 3;
+                    goto default;
                 case 1:
                     return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), 0.025f);
                 case 2:
