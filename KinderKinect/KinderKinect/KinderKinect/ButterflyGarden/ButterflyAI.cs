@@ -15,27 +15,27 @@ namespace KinderKinect.ButterflyGarden
             switch (tier)
             {
                 case 0:
-                    goto default;
+                    goto case 3;
                 case 1:
                     return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), 0.025f);
                 case 2:
-                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), 0.05f);
+                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), 0.03f);
                 case 3:
-                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), 0.075f);
+                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), 0.035f);
                 case 4:
-                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .1f);
+                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .040f);
                 case 5:
-                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .125f);
+                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .045f);
                 case 6:
-                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .15f);
+                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .050f);
                 case 7:
-                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .175f);
+                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .55f);
                 case 8:
-                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .2f);
+                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .60f);
                 case 9:
                     return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), .225f);
                 default:
-                    return Wander(b, new Vector2(tetherPoint.X, tetherPoint.Y), 0f);
+                    return Wander(b, new Vector2(b.getPosition().X, b.getPosition().Y), 0f);
             }
         }
 
@@ -68,19 +68,28 @@ namespace KinderKinect.ButterflyGarden
             b.WanderDirection = wanderDirection;
 
             float distanceFromTether = Vector2.Distance(new Vector2(b.getPosition().X, b.getPosition().Y), tether);
-            float maxDistanceFromTether = Math.Min(tether.Y, tether.X);
+            float maxDistanceFromTether = 1f;
 
             float normalizedDistance = distanceFromTether / maxDistanceFromTether;
 
             float turnBackToTetherSpeed = normalizedDistance;
 
-            float angle = getRotationAngle(new Vector2(ButterflyPosition.X, ButterflyPosition.Y), tether, wanderDirection, turnBackToTetherSpeed);
+            float angle = getRotationAngle(new Vector2(ButterflyPosition.X, ButterflyPosition.Y), tether, wanderDirection, turnBackToTetherSpeed * .15f);
 
             wanderDirection = Vector2.Transform(wanderDirection, Matrix.CreateRotationZ(angle));
 
             Vector3 displacement = new Vector3(wanderDirection, 0);
 
-            return Vector3.Clamp(ButterflyPosition + (displacement * speed), new Vector3(-6, -6, 0), new Vector3(6,5,0));
+            Vector3 updateVect = ButterflyPosition + (displacement * speed);
+
+            Vector3 clampedVect = Vector3.Clamp(updateVect, new Vector3(-6, -6, 0), new Vector3(6,5,0));
+            
+            if(updateVect.Length() != clampedVect.Length()) // we may be at an edge, lets flip ourselves 90 degrees
+            {
+                b.WanderDirection = b.WanderDirection * -1;
+            }
+
+            return clampedVect;
         }
 
         /// <summary>

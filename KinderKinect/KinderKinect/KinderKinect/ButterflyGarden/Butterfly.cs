@@ -167,7 +167,7 @@ namespace KinderKinect.ButterflyGarden
             startPosition = Position * 20;
             msOffset = rand.Next(0, 500);
             wanderDirection = new Vector2();
-            tether = new Vector2(Position.X, Position.Y);
+            tether = Vector2.Transform(new Vector2(Position.X, Position.Y), Matrix.CreateScale(0.1f));
         }
 
         public void Hide()
