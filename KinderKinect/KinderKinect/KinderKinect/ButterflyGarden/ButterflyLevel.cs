@@ -62,6 +62,7 @@ namespace KinderKinect.ButterflyGarden
         PlayerProfile playerProfile;
 
         Texture2D Feedback;
+        Texture2D background;
 
         Game1 myGame;
 
@@ -104,7 +105,7 @@ namespace KinderKinect.ButterflyGarden
             engine = new AudioEngine("Content\\Audio\\ButterflyAudio.xgs");
             waveBank = new WaveBank(engine, "Content\\Audio\\Waves.xwb");
             soundBank = new SoundBank(engine, "Content\\Audio\\Sounds.xsb");
-
+            background = content.Load<Texture2D>("Textures\\ButterflyGarden\\forestCrap");
             
             
         }
@@ -155,6 +156,7 @@ namespace KinderKinect.ButterflyGarden
             soundBank.PlayCue("73581__benboncan__sad-trombone");
             spriteQueue.Add(new Tuple<Vector3,int>(b.getPosition(), 1));
             queueTimers.Add(30);
+            scoreStrings.Add("x 0");
             b.Hide();
             mistakeCount++;
         }
@@ -165,8 +167,9 @@ namespace KinderKinect.ButterflyGarden
             queueTimers.Add(30);
             soundBank.PlayCue("145459__soughtaftersounds__menu-click-sparkle");
             int score = playerProfile.Score;
-            score += 1 * tier;
-            scoreStrings.Add(String.Format("{0]",1 * tier));
+            score += Math.Max(1, tier);
+            playerProfile.Score = score;
+            scoreStrings.Add(String.Format("x {0}", Math.Max(1, tier)));
             b.Hide();
         }
 
@@ -206,7 +209,14 @@ namespace KinderKinect.ButterflyGarden
         {
             BlendState restore1 = device.BlendState;
             DepthStencilState restore2 = device.DepthStencilState;
-            
+
+            sb.Begin();
+            sb.Draw(background, new Rectangle(0, 0, myGame.GraphicsDevice.Viewport.Width, myGame.GraphicsDevice.Viewport.Height), Microsoft.Xna.Framework.Color.White) ;
+            sb.End();
+
+            device.BlendState = restore1;
+            device.DepthStencilState = restore2;
+
             device.BlendState = BlendState.Opaque;
             player.Draw(myCam, sb);
             
@@ -249,6 +259,7 @@ namespace KinderKinect.ButterflyGarden
                     {
                         spriteQueue.RemoveAt(i);
                         queueTimers.RemoveAt(i);
+                        scoreStrings.RemoveAt(i);
                         break;
                     }
                 }

@@ -31,6 +31,8 @@ namespace KinderKinect.ButterflyGarden
 
         Logger errorLogger;
 
+        int counter;
+
         public ButterflyActivity(Game1 MyGame)
         {
             myGame = MyGame;
@@ -43,6 +45,7 @@ namespace KinderKinect.ButterflyGarden
             myCamera.LookAt(new Vector3(0, 0, 0));
             player = new ButterflyPlayer(myGame, new Vector3(0f, 2f, 0) * 2, 0f, myCamera);
             errorLogger = myGame.Services.GetService(typeof(Logger)) as Logger;
+            counter = -1;
             
         }
 
@@ -56,9 +59,7 @@ namespace KinderKinect.ButterflyGarden
         {
             if (!currentLevel.tryNewTier())
             {
-                currentLevel = new ButterflyLevel(myCamera, player, errorLogger, myGame);
-                currentLevel.LoadContent(content, myGame.GraphicsDevice.Viewport);
-                currentLevel.Completed += new ButterflyLevel.LevelFinishedEventHandler(currentLevel_Completed);
+                counter = 30;
             }
         }
 
@@ -87,6 +88,19 @@ namespace KinderKinect.ButterflyGarden
 
         public void Update(GameTime gameTime)
         {
+            if (counter > -1)
+            {
+                counter--;
+            }
+            if (counter == 0)
+            {
+                counter = -1;
+                currentLevel = new ButterflyLevel(myCamera, player, errorLogger, myGame);
+                currentLevel.LoadContent(content, myGame.GraphicsDevice.Viewport);
+                currentLevel.Completed += new ButterflyLevel.LevelFinishedEventHandler(currentLevel_Completed);
+                return;
+            }
+
             currentLevel.Update(gameTime);
         }
 

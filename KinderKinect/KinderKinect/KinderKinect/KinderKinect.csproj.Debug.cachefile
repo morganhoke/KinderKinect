@@ -10,9 +10,12 @@ Content\Textures\ButterflyGarden\Brown.xnb
 Content\Textures\ButterflyGarden\Orange.xnb
 Content\Textures\ButterflyGarden\Pink.xnb
 Content\Textures\CursorSpriteSheet.xnb
+Content\Textures\Feedback.xnb
 Content\SpriteFont1.xnb
+Content\SpriteFont2.xnb
 Content\Models\butterfly.xnb
 Content\Models\plane.xnb
+Content\Textures\ButterflyGarden\forestCrap.xnb
 Content\Audio\ButterflyAudio.xgs
 Content\Audio\Waves.xwb
 Content\Audio\Sounds.xsb
