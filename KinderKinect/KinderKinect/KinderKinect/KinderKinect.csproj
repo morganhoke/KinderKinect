@@ -101,6 +101,7 @@
     <Compile Include="Utils\IKinectListener.cs" />
     <Compile Include="Utils\KinectService.cs" />
     <Compile Include="Utils\Logger.cs" />
+    <Compile Include="Utils\PlayerProfile.cs" />
     <Compile Include="Utils\SpriteSheetLoader.cs" />
     <Compile Include="ButterflyGarden\SingleColorTexureCreator.cs" />
   </ItemGroup>

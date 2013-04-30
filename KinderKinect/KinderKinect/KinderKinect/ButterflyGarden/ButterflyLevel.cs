@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Audio;
+using DPSF;
 
 namespace KinderKinect.ButterflyGarden
 {
@@ -23,11 +24,12 @@ namespace KinderKinect.ButterflyGarden
         int solutionCount;
 
         SpriteFont font;
+        SpriteFont font2;
 
         AudioEngine engine;
         WaveBank waveBank;
         SoundBank soundBank;
-
+       
         Logger errorLogger;
 
         bool LevelStarting;
@@ -53,19 +55,37 @@ namespace KinderKinect.ButterflyGarden
         public delegate void LevelFinishedEventHandler(object sender, EventArgs e);
         public event LevelFinishedEventHandler Completed;
 
-        public ButterflyLevel(Camera Camera, ButterflyPlayer Player, Logger ErrorLogger)
+        List<Tuple<Vector3, int>> spriteQueue;
+        List<int> queueTimers;
+        List<string> scoreStrings;
+
+        PlayerProfile playerProfile;
+
+        Texture2D Feedback;
+
+        Game1 myGame;
+
+        public ButterflyLevel(Camera Camera, ButterflyPlayer Player, Logger ErrorLogger, Game1 MyGame)
         {
             myCam = Camera;
             player = Player;
             butterflies = new List<Butterfly>();
             LevelStarting = true;
             errorLogger = ErrorLogger;
+            myGame = MyGame;
+            spriteQueue = new List<Tuple<Vector3, int>>();
+            queueTimers = new List<int>();
+            scoreStrings = new List<string>();
+            playerProfile = myGame.Services.GetService(typeof(PlayerProfile)) as PlayerProfile;
+            
         }
 
         public void LoadContent(ContentManager content, Viewport view)
         {
             Array values = Enum.GetValues(typeof(Butterfly.ButterflyColors));
             Random random = new Random();
+            Feedback = content.Load<Texture2D>("Textures\\Feedback");
+            
             for (int i = 0; i < positions.Length; i ++)
             {
                 butterflies.Add(new Butterfly(positions[i], 0,view, myCam.ViewMatrix, myCam.ProjectionMatrix,  (Butterfly.ButterflyColors)values.GetValue(random.Next(values.Length))));
@@ -80,9 +100,13 @@ namespace KinderKinect.ButterflyGarden
             int numSolution = butterflies.Count(c => c.Color == solutionColor && c.GetHidden() == false );
             solutionCount = rand.Next(1, numSolution);
             font = content.Load<SpriteFont>("SpriteFont1");
+            font2 = content.Load<SpriteFont>("SpriteFont2");
             engine = new AudioEngine("Content\\Audio\\ButterflyAudio.xgs");
             waveBank = new WaveBank(engine, "Content\\Audio\\Waves.xwb");
             soundBank = new SoundBank(engine, "Content\\Audio\\Sounds.xsb");
+
+            
+            
         }
 
         public bool tryNewTier()
@@ -129,18 +153,26 @@ namespace KinderKinect.ButterflyGarden
         void WrongChoice(Butterfly b)
         {
             soundBank.PlayCue("73581__benboncan__sad-trombone");
+            spriteQueue.Add(new Tuple<Vector3,int>(b.getPosition(), 1));
+            queueTimers.Add(30);
             b.Hide();
             mistakeCount++;
         }
 
         void RightChoice(Butterfly b)
         {
+            spriteQueue.Add(new Tuple<Vector3, int>(b.getPosition(), 0));
+            queueTimers.Add(30);
             soundBank.PlayCue("145459__soughtaftersounds__menu-click-sparkle");
+            int score = playerProfile.Score;
+            score += 1 * tier;
+            scoreStrings.Add(String.Format("{0]",1 * tier));
             b.Hide();
         }
 
         public void Update(GameTime gameTime)
         {
+
             player.Update();
             if (!LevelStarting)
             {
@@ -187,6 +219,7 @@ namespace KinderKinect.ButterflyGarden
 
             if (!LevelStarting)
             {
+               
                 string output1 = string.Format("Catch {0} ", solutionCount);
                 string Color = string.Format("{0} ", solutionColor);
                 Color = Color.ToUpper();
@@ -201,6 +234,25 @@ namespace KinderKinect.ButterflyGarden
                 int colorOffset = widthOffset + (int)(font.MeasureString(output1).X);
                 int finalOffset = colorOffset + (int)(font.MeasureString(Color).X);
                 sb.Begin();
+
+                for (int i = 0; i < spriteQueue.Count; i++)
+                {
+                    sb.Draw(Feedback, new Vector2(myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).X,myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).Y) ,new Rectangle( spriteQueue[i].Item2 * 48, 0, 48, 48), Microsoft.Xna.Framework.Color.White);
+                    queueTimers[i]--;
+                    sb.DrawString(font2, scoreStrings[i], new Vector2(myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).X + 48, myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).Y), Microsoft.Xna.Framework.Color.White);
+                                      
+                }
+
+                for (int i = 0; i < queueTimers.Count; i++)
+                {
+                    if (queueTimers[i] <= 0)
+                    {
+                        spriteQueue.RemoveAt(i);
+                        queueTimers.RemoveAt(i);
+                        break;
+                    }
+                }
+
 
                 sb.DrawString(font, output1, new Vector2(widthOffset - 2, (device.Viewport.Height / 32) * 27 ), Microsoft.Xna.Framework.Color.Black);
                 sb.DrawString(font, output1, new Vector2(widthOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
@@ -287,6 +339,9 @@ namespace KinderKinect.ButterflyGarden
                 sb.DrawString(font, output2, new Vector2(finalOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
                 sb.DrawString(font, output2, new Vector2(finalOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Yellow);
 
+                sb.Draw(Feedback, new Vector2(device.Viewport.Width/6f * 5f, device.Viewport.Height / 32 * 27), new Rectangle(0, 0, 48, 48), Microsoft.Xna.Framework.Color.White);
+                sb.DrawString(font2, String.Format(" = {0}", playerProfile.Score), new Vector2(device.Viewport.Width / 6f * 5f + 48, device.Viewport.Height / 32 * 27), Microsoft.Xna.Framework.Color.White);
+
                 //For debugging 
                 //sb.Draw(Butterfly.ButterflyTextures[0], new Rectangle((int)(player.Hands[0].Position.X - 24), (int)(player.Hands[0].Position.Y - 24), 48, 48), Microsoft.Xna.Framework.Color.White);
                 //sb.Draw(Butterfly.ButterflyTextures[0], new Rectangle((int)(player.Hands[01].Position.X - 24), (int)(player.Hands[1].Position.Y - 24), 48, 48), Microsoft.Xna.Framework.Color.White);
@@ -294,6 +349,7 @@ namespace KinderKinect.ButterflyGarden
             }
             device.BlendState = restore1;
             device.DepthStencilState = restore2;
+            
         }
     }
 }

@@ -31,15 +31,20 @@ namespace KinderKinect
 
         ActivityManager activitiyManager;
 
+        PlayerProfile player;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = 1024;
             graphics.PreferredBackBufferHeight = 768;
+          //  graphics.IsFullScreen = true;
+            this.Window.Title = "Kinder Kinect";
             Content.RootDirectory = "Content";
             debugDraw = new DebugDrawer(this);
             errorLogger = new Logger(new Uri(@"..\..\..\errorLog.txt", UriKind.Relative));
             kinect = new KinectService(errorLogger);
+            player = new PlayerProfile();
         }
 
         /// <summary>
@@ -55,6 +60,7 @@ namespace KinderKinect
             //this.Components.Add(debugDraw);
             this.Services.AddService(typeof(KinectService), kinect);
             this.Services.AddService(typeof(Logger), errorLogger);
+            this.Services.AddService(typeof(PlayerProfile), player);
             activitiyManager = new ActivityManager(new ButterflyActivity(this));
             base.Initialize();
         }
@@ -90,7 +96,7 @@ namespace KinderKinect
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().GetPressedKeys().Contains(Keys.Escape))
                 this.Exit();
 
             // TODO: Add your update logic here

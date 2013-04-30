@@ -19,6 +19,8 @@ namespace KinderKinect.Utils
         };
 
 
+        Rectangle bodySpace;
+
         protected Vector2 _position;
         public Vector2 Position
         {
@@ -58,6 +60,7 @@ namespace KinderKinect.Utils
             _rect.Width = 48;
             _rect.Height = 48;
             _position = new Vector2();
+            bodySpace = new Rectangle();
         }
 
         public virtual void Update()
@@ -81,7 +84,15 @@ namespace KinderKinect.Utils
                 _rect.X = (int)(_position.X - 24);
                 _rect.Y = (int)(_position.Y - 24);
                 _newDataReady = false;
-                if (hand.TrackingState == JointTrackingState.Tracked)
+            
+                //Creates a deadzone centered at the user's chest, needs more investigation
+                bodySpace.X =  kinect.Kinect.CoordinateMapper.MapSkeletonPointToDepthPoint(kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.ShoulderLeft].Position, kinect.Kinect.DepthStream.Format).X * myGame.GraphicsDevice.PresentationParameters.BackBufferWidth / kinect.Kinect.DepthStream.FrameWidth - 10;
+                bodySpace.Y = kinect.Kinect.CoordinateMapper.MapSkeletonPointToDepthPoint(kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.ShoulderLeft].Position, kinect.Kinect.DepthStream.Format).Y * myGame.GraphicsDevice.PresentationParameters.BackBufferHeight / kinect.Kinect.DepthStream.FrameHeight - 10;
+                bodySpace.Width = kinect.Kinect.CoordinateMapper.MapSkeletonPointToDepthPoint(kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.ShoulderRight].Position, kinect.Kinect.DepthStream.Format).X * myGame.GraphicsDevice.PresentationParameters.BackBufferWidth / kinect.Kinect.DepthStream.FrameWidth - kinect.Kinect.CoordinateMapper.MapSkeletonPointToDepthPoint(kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.ShoulderLeft].Position, kinect.Kinect.DepthStream.Format).X * myGame.GraphicsDevice.PresentationParameters.BackBufferWidth / kinect.Kinect.DepthStream.FrameWidth +10;
+                bodySpace.Height = kinect.Kinect.CoordinateMapper.MapSkeletonPointToDepthPoint(kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.HipLeft].Position, kinect.Kinect.DepthStream.Format).Y * myGame.GraphicsDevice.PresentationParameters.BackBufferHeight / kinect.Kinect.DepthStream.FrameHeight - kinect.Kinect.CoordinateMapper.MapSkeletonPointToDepthPoint(kinect.Skeletons[kinect.ActiveSkeletonNumber - 1].Joints[JointType.ShoulderLeft].Position, kinect.Kinect.DepthStream.Format).Y * myGame.GraphicsDevice.PresentationParameters.BackBufferHeight / kinect.Kinect.DepthStream.FrameHeight +10;
+
+
+                if (hand.TrackingState == JointTrackingState.Tracked && ! bodySpace.Contains((int)_position.X, (int)_position.Y))
                 {
                     _valid = true;
                     

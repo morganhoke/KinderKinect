@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework.Content;
 using KinderKinect.Utils;
 using SkinnedModel;
+using DPSF;
 
 namespace KinderKinect.ButterflyGarden
 {
@@ -20,6 +21,8 @@ namespace KinderKinect.ButterflyGarden
         public event ButterflySelectedEventHandler Selected;
         private bool hidden;
         private AnimationPlayer animationPlayer;
+
+
 
         private double positionScale;
 
@@ -213,6 +216,7 @@ namespace KinderKinect.ButterflyGarden
 
             animationPlayer.StartClip(clip);
             animationPlayer.Update(new TimeSpan(0, 0, 0, msOffset), true, Matrix.Identity);
+            
         }
 
         void hitbox_Exited(object sender, EventArgs e)
@@ -261,7 +265,6 @@ namespace KinderKinect.ButterflyGarden
                         effect.Projection = myCam.ProjectionMatrix;
                         effect.DiffuseColor = Microsoft.Xna.Framework.Color.White.ToVector3();
                         effect.Texture = ButterflyTextures[(int)(myColor)];
-
                     }
                     mesh.Draw();
                 }
