@@ -38,6 +38,8 @@ namespace KinderKinect.ButterflyGarden
 
         int mistakeCount = 0;
 
+        int textOffset;
+
         private readonly Vector3[] positions = {  // new Vector3(0f, 1f, 0) * 3,
                                                    new Vector3(.75f, (float)Math.Sqrt(3) / 2f , 0f) * 4,
                                                    new Vector3((float)Math.Sqrt(3) / 2f + .25f, .5f, 0f) * 4,
@@ -65,6 +67,8 @@ namespace KinderKinect.ButterflyGarden
         Texture2D background;
 
         Game1 myGame;
+
+        DefaultTexturedQuadTextureCoordinatesParticleSystem particleSystem;
 
         public ButterflyLevel(Camera Camera, ButterflyPlayer Player, Logger ErrorLogger, Game1 MyGame)
         {
@@ -100,14 +104,28 @@ namespace KinderKinect.ButterflyGarden
             solutionColor = (Butterfly.ButterflyColors)usedColors.ElementAt(random.Next(usedColors.Count()));
             int numSolution = butterflies.Count(c => c.Color == solutionColor && c.GetHidden() == false );
             solutionCount = rand.Next(1, numSolution);
+            foreach(Butterfly B in butterflies.Where(c => c.Color == solutionColor))
+            {
+                B.SelectionTime = 25;//nearly instantaneous for correct guess
+            }
+
+            foreach (Butterfly B in butterflies.Where(c => c.Color != solutionColor))
+            {
+                B.SelectionTime = 1000;//a whole second for incorrect guesses
+            }
+
             font = content.Load<SpriteFont>("SpriteFont1");
             font2 = content.Load<SpriteFont>("SpriteFont2");
             engine = new AudioEngine("Content\\Audio\\ButterflyAudio.xgs");
             waveBank = new WaveBank(engine, "Content\\Audio\\Waves.xwb");
             soundBank = new SoundBank(engine, "Content\\Audio\\Sounds.xsb");
             background = content.Load<Texture2D>("Textures\\ButterflyGarden\\forestCrap");
-            
-            
+
+            textOffset = myGame.GraphicsDevice.Viewport.Height / 32 * 6;
+
+            particleSystem = new DefaultTexturedQuadTextureCoordinatesParticleSystem(myGame);
+            particleSystem.AutoInitialize(myGame.GraphicsDevice, content, myGame.Services.GetService(typeof(SpriteBatch)) as SpriteBatch);
+            //particleSystem.SetTexture("Textures\\Feedback");
         }
 
         public bool tryNewTier()
@@ -130,7 +148,17 @@ namespace KinderKinect.ButterflyGarden
                 solutionColor = (Butterfly.ButterflyColors)usedColors.ElementAt(rand.Next(usedColors.Count()));
                 int numSolution = butterflies.Count(c => c.Color == solutionColor && c.GetHidden() == false);
                 solutionCount = rand.Next(1, numSolution);
+                foreach (Butterfly B in butterflies.Where(c => c.Color == solutionColor))
+                {
+                    B.SelectionTime = 25;//nearly instantaneous for correct guess
+                }
+
+                foreach (Butterfly B in butterflies.Where(c => c.Color != solutionColor))
+                {
+                    B.SelectionTime = 1000;//a whole second for incorrect guesses
+                }
                 tier++;
+                textOffset = myGame.GraphicsDevice.Viewport.Height / 32 * 6;
                 return true;
             }
 
@@ -210,15 +238,16 @@ namespace KinderKinect.ButterflyGarden
             BlendState restore1 = device.BlendState;
             DepthStencilState restore2 = device.DepthStencilState;
 
-            sb.Begin();
+            sb.Begin(SpriteSortMode.Texture, BlendState.NonPremultiplied);
             sb.Draw(background, new Rectangle(0, 0, myGame.GraphicsDevice.Viewport.Width, myGame.GraphicsDevice.Viewport.Height), Microsoft.Xna.Framework.Color.White) ;
+            player.Draw(myCam, sb);
             sb.End();
 
             device.BlendState = restore1;
             device.DepthStencilState = restore2;
 
             device.BlendState = BlendState.Opaque;
-            player.Draw(myCam, sb);
+           
             
             foreach (Butterfly b in butterflies)
             {
@@ -265,98 +294,102 @@ namespace KinderKinect.ButterflyGarden
                 }
 
 
-                sb.DrawString(font, output1, new Vector2(widthOffset - 2, (device.Viewport.Height / 32) * 27 ), Microsoft.Xna.Framework.Color.Black);
-                sb.DrawString(font, output1, new Vector2(widthOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                sb.DrawString(font, output1, new Vector2(widthOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                sb.DrawString(font, output1, new Vector2(widthOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                sb.DrawString(font, output1, new Vector2(widthOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Yellow);
+                sb.DrawString(font, output1, new Vector2(widthOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset ), Microsoft.Xna.Framework.Color.Black);
+                sb.DrawString(font, output1, new Vector2(widthOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                sb.DrawString(font, output1, new Vector2(widthOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                sb.DrawString(font, output1, new Vector2(widthOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                sb.DrawString(font, output1, new Vector2(widthOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Yellow);
                 switch (solutionColor)
                 {
                     case Butterfly.ButterflyColors.Black:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.White);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.White);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.White);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.White);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.White);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.White);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.White);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.White);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
                         break;
                     case Butterfly.ButterflyColors.Blue:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Blue);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Blue);
                         break;
                     case Butterfly.ButterflyColors.Brown:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.SaddleBrown);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.SaddleBrown);
                         break;
                     case Butterfly.ButterflyColors.Green:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.LawnGreen);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.LawnGreen);
                         break;
                     case Butterfly.ButterflyColors.Orange:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.DarkOrange);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.DarkOrange);
                         break;
                     case Butterfly.ButterflyColors.Pink:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Orchid);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Orchid);
                         break;
                     case Butterfly.ButterflyColors.Purple:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Purple);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Purple);
                         break;
                     case Butterfly.ButterflyColors.Red:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Red);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Red);
                         break;
                     case Butterfly.ButterflyColors.White:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.GhostWhite);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.GhostWhite);
                         break;
                     case Butterfly.ButterflyColors.Yellow:
-                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Yellow);
+                        sb.DrawString(font, Color, new Vector2(colorOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                        sb.DrawString(font, Color, new Vector2(colorOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Yellow);
                         break;
                 }
 
-                sb.DrawString(font, output2, new Vector2(finalOffset - 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                sb.DrawString(font, output2, new Vector2(finalOffset + 2, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Black);
-                sb.DrawString(font, output2, new Vector2(finalOffset, (device.Viewport.Height / 32) * 27 - 2), Microsoft.Xna.Framework.Color.Black);
-                sb.DrawString(font, output2, new Vector2(finalOffset, (device.Viewport.Height / 32) * 27 + 2), Microsoft.Xna.Framework.Color.Black);
-                sb.DrawString(font, output2, new Vector2(finalOffset, (device.Viewport.Height / 32) * 27), Microsoft.Xna.Framework.Color.Yellow);
+                sb.DrawString(font, output2, new Vector2(finalOffset - 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                sb.DrawString(font, output2, new Vector2(finalOffset + 2, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                sb.DrawString(font, output2, new Vector2(finalOffset, (device.Viewport.Height / 32) * 27 - 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                sb.DrawString(font, output2, new Vector2(finalOffset, (device.Viewport.Height / 32) * 27 + 2 - textOffset), Microsoft.Xna.Framework.Color.Black);
+                sb.DrawString(font, output2, new Vector2(finalOffset, (device.Viewport.Height / 32) * 27 - textOffset), Microsoft.Xna.Framework.Color.Yellow);
 
-                sb.Draw(Feedback, new Vector2(device.Viewport.Width/6f * 5f, device.Viewport.Height / 32 * 27), new Rectangle(0, 0, 48, 48), Microsoft.Xna.Framework.Color.White);
-                sb.DrawString(font2, String.Format(" = {0}", playerProfile.Score), new Vector2(device.Viewport.Width / 6f * 5f + 48, device.Viewport.Height / 32 * 27), Microsoft.Xna.Framework.Color.White);
+                sb.Draw(Feedback, new Vector2(device.Viewport.Width/6f * 5f, device.Viewport.Height / 32 ), new Rectangle(0, 0, 48, 48), Microsoft.Xna.Framework.Color.White);
+                sb.DrawString(font2, String.Format(" = {0}", playerProfile.Score), new Vector2(device.Viewport.Width / 6f * 5f + 48, device.Viewport.Height / 32 ), Microsoft.Xna.Framework.Color.White);
 
                 //For debugging 
                 //sb.Draw(Butterfly.ButterflyTextures[0], new Rectangle((int)(player.Hands[0].Position.X - 24), (int)(player.Hands[0].Position.Y - 24), 48, 48), Microsoft.Xna.Framework.Color.White);
                 //sb.Draw(Butterfly.ButterflyTextures[0], new Rectangle((int)(player.Hands[01].Position.X - 24), (int)(player.Hands[1].Position.Y - 24), 48, 48), Microsoft.Xna.Framework.Color.White);
                 sb.End();
+                if (textOffset > 0)
+                {
+                    textOffset-=2;
+                }
             }
             device.BlendState = restore1;
             device.DepthStencilState = restore2;

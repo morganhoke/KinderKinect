@@ -12,7 +12,6 @@ using KinderKinect.Utils;
 using Microsoft.Kinect;
 using KinderKinect.ButterflyGarden;
 
-
 namespace KinderKinect
 {
     /// <summary>
@@ -38,13 +37,14 @@ namespace KinderKinect
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = 1024;
             graphics.PreferredBackBufferHeight = 768;
-            graphics.IsFullScreen = true;
+          //  graphics.IsFullScreen = true;
             this.Window.Title = "Kinder Kinect";
             Content.RootDirectory = "Content";
             debugDraw = new DebugDrawer(this);
             errorLogger = new Logger(new Uri(@"..\..\..\errorLog.txt", UriKind.Relative));
             kinect = new KinectService(errorLogger);
             player = new PlayerProfile();
+
         }
 
         /// <summary>

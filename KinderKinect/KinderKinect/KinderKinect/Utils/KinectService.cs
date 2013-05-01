@@ -181,7 +181,6 @@ namespace KinderKinect.Utils
         {
             if (isRunning)
             {
-                skeletonFrame = e.OpenSkeletonFrame();
                 depthFrame = e.OpenDepthImageFrame();
                 colorFranme = e.OpenColorImageFrame();
 
@@ -192,6 +191,7 @@ namespace KinderKinect.Utils
 
                     skeletons = new Skeleton[frame.SkeletonArrayLength];
                     frame.CopySkeletonDataTo(skeletons);
+                    skeletonFrame = frame;
                 }
 
                 activeSkeletonNumber = 0;

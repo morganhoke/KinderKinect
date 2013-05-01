@@ -15,13 +15,25 @@ namespace KinderKinect.ButterflyGarden
 {
     class Butterfly
     {
-        private const int padX = 50, padY = 50, selectionMilis = 300;
+        private int padX = 50, padY = 50, selectionMilis = 300;
         private Stopwatch timeSelected;
         public delegate void ButterflySelectedEventHandler(object sender, EventArgs e);
         public event ButterflySelectedEventHandler Selected;
         private bool hidden;
         private AnimationPlayer animationPlayer;
 
+
+        public int SelectionTime
+        {
+            get
+            {
+                return selectionMilis;
+            }
+            set
+            {
+                selectionMilis = value;
+            }
+        }
 
 
         private double positionScale;

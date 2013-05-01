@@ -16,10 +16,7 @@ namespace KinderKinect.ButterflyGarden
         Texture2D testTex;
         KinectService kinect;
         Game1 myGame;
-        Model myModel;
         SpriteBatch batch;
-        private Matrix[] transforms;
-        private Matrix world;
 
         /// <summary>
         /// The player's position in the scene
@@ -81,7 +78,6 @@ namespace KinderKinect.ButterflyGarden
         {
            
             myGame = MyGame;
-            kinectVideoTexture = new Texture2D(myGame.GraphicsDevice, 640, 480);
             hands = new List<ICursor>();
             hands.Add(new KinectAbsoluteScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Left, myGame));
             hands.Add(new KinectAbsoluteScreenspaceCursor(myGame.Services.GetService(typeof(KinectService)) as KinectService, KinectAbsoluteScreenspaceCursor.Handedness.Right, myGame));
@@ -94,7 +90,6 @@ namespace KinderKinect.ButterflyGarden
 
         public void LoadContent(ContentManager content)
         {
-            myModel = content.Load<Model>(@"Models\plane");
             testTex = content.Load<Texture2D>(@"Textures\DebugColor");
         }
 
@@ -120,7 +115,7 @@ namespace KinderKinect.ButterflyGarden
                 var colorCoordinates = new ColorImagePoint[kinect.DepthFrame.PixelDataLength];
                 kinect.Kinect.CoordinateMapper.MapDepthFrameToColorFrame(kinect.DepthFrame.Format, depthBits, kinect.ColorFrame.Format, colorCoordinates);
 
-                for (int depthIndex = 0; depthIndex < depthBits.Length; depthIndex++, outputIndex += kinect.ColorFrame.BytesPerPixel)
+               for (int depthIndex = 0; depthIndex < depthBits.Length; depthIndex++, outputIndex += kinect.ColorFrame.BytesPerPixel)
                 {
                     var playerIndex = depthBits[depthIndex].PlayerIndex;
 
@@ -144,8 +139,11 @@ namespace KinderKinect.ButterflyGarden
                     }
                 }
 
-                kinectVideoTexture = new Texture2D(myGame.GraphicsDevice, kinect.DepthFrame.Width, kinect.DepthFrame.Height, false, SurfaceFormat.Color);
-                kinectVideoTexture.SetData(output);
+               if (kinectVideoTexture == null)
+               {
+                   kinectVideoTexture = new Texture2D(myGame.GraphicsDevice, kinect.DepthFrame.Width, kinect.DepthFrame.Height, false, SurfaceFormat.Color);
+               }
+               kinectVideoTexture.SetData(output);
                 _newDataReady = false;
 
             }
@@ -170,31 +168,10 @@ namespace KinderKinect.ButterflyGarden
 
         public void Draw(Camera cam, SpriteBatch sb)
         {
-           
-
-            // Draw the model. A model can have multiple meshes, so loop.
-            foreach (ModelMesh mesh in myModel.Meshes)
+            if (kinectVideoTexture != null)
             {
-                // This is where the mesh orientation is set, as well 
-                // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.PreferPerPixelLighting = true;
-                    effect.World = Matrix.CreateScale(0.1f) * world;
-                    effect.View = cam.ViewMatrix;
-                    effect.Projection = cam.ProjectionMatrix;
-                    effect.TextureEnabled = true;
-                    effect.Texture = kinectVideoTexture;
-                }
-                // Draw the mesh, using the effects set above.
-                mesh.Draw();
+                sb.Draw(kinectVideoTexture, new Rectangle(0, 0, myGame.GraphicsDevice.PresentationParameters.BackBufferWidth, myGame.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
             }
-
-            sb.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied);
-            sb.Draw(kinectVideoTexture, new Rectangle(0, 0, myGame.GraphicsDevice.PresentationParameters.BackBufferWidth, myGame.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
-            sb.End();
-            
         }
     }
 }
