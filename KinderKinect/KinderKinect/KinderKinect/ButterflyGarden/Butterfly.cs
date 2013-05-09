@@ -76,7 +76,7 @@ namespace KinderKinect.ButterflyGarden
 
 
         /// <summary>
-        /// I do this horrible aweful hack to simplify my content loading/unloading job
+        /// I do this to simplify my content loading/unloading job
         /// </summary>
         public static Texture2D[] ButterflyTextures;
 
@@ -281,7 +281,7 @@ namespace KinderKinect.ButterflyGarden
                     mesh.Draw();
                 }
 
-                //For Debugging6
+                //For Debugging
                // sb.Begin();
                // sb.Draw(ButterflyTextures[0], hitbox.HitArea, Microsoft.Xna.Framework.Color.White);
                // sb.End();

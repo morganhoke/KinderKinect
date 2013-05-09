@@ -278,8 +278,10 @@ namespace KinderKinect.ButterflyGarden
                 {
                     sb.Draw(Feedback, new Vector2(myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).X,myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).Y) ,new Rectangle( spriteQueue[i].Item2 * 48, 0, 48, 48), Microsoft.Xna.Framework.Color.White);
                     queueTimers[i]--;
-                    sb.DrawString(font2, scoreStrings[i], new Vector2(myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).X + 48, myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).Y), Microsoft.Xna.Framework.Color.White);
-                                      
+                    if (!scoreStrings[i].Equals("x 0"))
+                    {
+                        sb.DrawString(font2, scoreStrings[i], new Vector2(myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).X + 48, myGame.GraphicsDevice.Viewport.Project(spriteQueue[i].Item1, myCam.ProjectionMatrix, myCam.ViewMatrix, Matrix.Identity).Y), Microsoft.Xna.Framework.Color.White);
+                    }             
                 }
 
                 for (int i = 0; i < queueTimers.Count; i++)

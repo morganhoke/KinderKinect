@@ -30,9 +30,11 @@ namespace KinderKinect.Utils
 
         private List<IKinectListener> children;
         private bool isRunning;
+        bool fill0 = true;
 
         #region frameAccessors
-        private DepthImageFrame depthFrame;
+        private DepthImageFrame depthFrame0;
+        private DepthImageFrame depthFrame1;
         /// <summary>
         /// The current Depth Frame
         /// </summary>
@@ -40,11 +42,19 @@ namespace KinderKinect.Utils
         {
             get
             {
-                return depthFrame;
+                if (fill0)
+                {
+                    return depthFrame1;
+                }
+                else
+                {
+                    return depthFrame0;
+                }
             }
         }
 
-        private SkeletonFrame skeletonFrame;
+        private SkeletonFrame skeletonFrame0;
+        private SkeletonFrame skeletonFrame1;
         /// <summary>
         /// The current skeleton frame
         /// </summary>
@@ -52,11 +62,19 @@ namespace KinderKinect.Utils
         {
             get
             {
-                return skeletonFrame;
+                if (fill0)
+                {
+                    return skeletonFrame1;
+                }
+                else
+                {
+                    return skeletonFrame0;
+                }
             }
         }
 
-        private ColorImageFrame colorFranme;
+        private ColorImageFrame colorFrame0;
+        private ColorImageFrame colorFrame1;
         /// <summary>
         /// The current color frame
         /// </summary>
@@ -64,7 +82,14 @@ namespace KinderKinect.Utils
         {
             get
             {
-                return colorFranme;
+                if (fill0)
+                {
+                    return colorFrame1;
+                }
+                else
+                {
+                    return colorFrame0;
+                }
             }
         }
         #endregion
@@ -177,40 +202,108 @@ namespace KinderKinect.Utils
             
         }
 
+
         void myKinect_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
             if (isRunning)
             {
-                depthFrame = e.OpenDepthImageFrame();
-                colorFranme = e.OpenColorImageFrame();
-
-                using (SkeletonFrame frame = e.OpenSkeletonFrame())
+                if (fill0)
                 {
-                    if (frame == null)
+                    depthFrame0 = e.OpenDepthImageFrame();
+                    colorFrame0 = e.OpenColorImageFrame();
+                    skeletonFrame0 = e.OpenSkeletonFrame();
+                    if (skeletonFrame0 == null)
+                            return;
+
+                        skeletons = new Skeleton[skeletonFrame0.SkeletonArrayLength];
+                        skeletonFrame0.CopySkeletonDataTo(skeletons);
+
+                        activeSkeletonNumber = 0;
+
+                        for (int i = 0; i < skeletons.Length; i++)
+                        {
+                            if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
+                            {
+                                activeSkeletonNumber = i + 1;
+                                activeSkeleton = skeletons[i];
+                                break;
+                            }
+                        }
+
+                        foreach (IKinectListener l in children)
+                        {
+                            l.NewKinectDataReady = true;
+                        }
+
+
+                    if (depthFrame1 != null)
+                    {
+                        depthFrame1.Dispose();
+                        depthFrame1 = null;
+                    }
+                    if (colorFrame1 != null)
+                    {
+                        colorFrame1.Dispose();
+                        colorFrame1 = null;
+                    }
+                    if (skeletonFrame1 != null)
+                    {
+                        skeletonFrame1.Dispose();
+                        skeletonFrame1 = null;
+                    }
+                    fill0 = false;
+                }
+                else
+                {
+                    depthFrame1 = e.OpenDepthImageFrame();
+                    colorFrame1 = e.OpenColorImageFrame();
+                    skeletonFrame1 = e.OpenSkeletonFrame();
+                    if (skeletonFrame1 == null)
                         return;
 
-                    skeletons = new Skeleton[frame.SkeletonArrayLength];
-                    frame.CopySkeletonDataTo(skeletons);
-                    skeletonFrame = frame;
-                }
+                    skeletons = new Skeleton[skeletonFrame1.SkeletonArrayLength];
+                    skeletonFrame1.CopySkeletonDataTo(skeletons);
 
-                activeSkeletonNumber = 0;
+                    activeSkeletonNumber = 0;
 
-                for (int i = 0; i < skeletons.Length; i++)
-                {
-                    if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
+                    for (int i = 0; i < skeletons.Length; i++)
                     {
-                        activeSkeletonNumber = i + 1;
-                        activeSkeleton = skeletons[i];
-                        break;
+                        if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
+                        {
+                            activeSkeletonNumber = i + 1;
+                            activeSkeleton = skeletons[i];
+                            break;
+                        }
                     }
+
+                    foreach (IKinectListener l in children)
+                    {
+                        l.NewKinectDataReady = true;
+                    }
+
+
+                    if (depthFrame0 != null)
+                    {
+                        depthFrame0.Dispose();
+                        depthFrame0 = null;
+                    }
+                    if (colorFrame0 != null)
+                    {
+                        colorFrame0.Dispose();
+                        colorFrame0 = null;
+                    }
+                    if (skeletonFrame0 != null)
+                    {
+                        skeletonFrame0.Dispose();
+                        skeletonFrame0 = null;
+                    }
+                    fill0 = true;
                 }
 
-                foreach (IKinectListener l in children)
-                {
-                    l.NewKinectDataReady = true;
-                }
+                
+                
 
+               
             }
         }
 
