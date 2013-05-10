@@ -111,7 +111,7 @@ namespace KinderKinect.ButterflyGarden
 
             foreach (Butterfly B in butterflies.Where(c => c.Color != solutionColor))
             {
-                B.SelectionTime = 1000;//a whole second for incorrect guesses
+                B.SelectionTime = 400;//a whole second for incorrect guesses
             }
 
             font = content.Load<SpriteFont>("SpriteFont1");
@@ -155,7 +155,7 @@ namespace KinderKinect.ButterflyGarden
 
                 foreach (Butterfly B in butterflies.Where(c => c.Color != solutionColor))
                 {
-                    B.SelectionTime = 1000;//a whole second for incorrect guesses
+                    B.SelectionTime = 400;// incorrect guesses
                 }
                 tier++;
                 textOffset = myGame.GraphicsDevice.Viewport.Height / 32 * 6;
@@ -238,7 +238,7 @@ namespace KinderKinect.ButterflyGarden
             BlendState restore1 = device.BlendState;
             DepthStencilState restore2 = device.DepthStencilState;
 
-            sb.Begin(SpriteSortMode.Texture, BlendState.NonPremultiplied);
+            sb.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
             sb.Draw(background, new Rectangle(0, 0, myGame.GraphicsDevice.Viewport.Width, myGame.GraphicsDevice.Viewport.Height), Microsoft.Xna.Framework.Color.White) ;
             player.Draw(myCam, sb);
             sb.End();
